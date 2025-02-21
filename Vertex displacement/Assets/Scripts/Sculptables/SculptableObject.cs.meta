@@ -3,7 +3,9 @@ guid: 48779a95e0edfea429944c62bd618418
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - _sculptMaterial: {fileID: 2100000, guid: a8c05eddb6100354aa98a4e8869bcea6, type: 2}
+  - _computeShader: {fileID: 7200000, guid: 2345b73f17c31ab4b9c7b35f6977ce11, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

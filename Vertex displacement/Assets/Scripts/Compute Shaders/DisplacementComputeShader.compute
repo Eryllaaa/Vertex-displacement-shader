@@ -2,8 +2,8 @@
 
 RWStructuredBuffer<float> displacementBuffer : register(u0);
 RWStructuredBuffer<float3> displacementPoints : register(u1);
-StructuredBuffer<float3> vertices : register(t0);
 RWStructuredBuffer<int> debugBuffer : register(u2);
+StructuredBuffer<float3> vertices : register(t0);
 
 uint pointCount = 0;
 uint vertexCount = 0;
@@ -17,20 +17,13 @@ bool CheckExit(uint pIndex)
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
     uint lIndex = id.x;
-    if (CheckExit(lIndex))
-    {
-        //return;
-    }
-    
-    debugBuffer[0] = lIndex;
-    
     float3 currentVert = vertices[lIndex];
     
     for (uint i = 1; i < pointCount; i++)
-    {   
-        if (length(displacementPoints[i] - currentVert) < 0.1f)
+    {
+        if (length(displacementPoints[i] - currentVert) < 1.0f)
         {
-            displacementBuffer[lIndex] += 0.001f;
+            displacementBuffer[lIndex] -= 0.0001f;
         }
     }
 }

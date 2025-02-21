@@ -2,18 +2,32 @@ using UnityEngine;
 
 public class SculptingManager : MonoBehaviour
 {
-    [SerializeField] private LayerMask _sculptableLayer;
+    private SculptingManager _instance;
+    public static SculptingManager Instance { get; private set; }
+
+    [SerializeField] public LayerMask sculptableLayer;
     private Camera _camera;
     private const float _MAX_RAYCAST_DISTANCE = 1000f;
 
     private void Start()
     {
+        SingletonCheck();
         _camera = Camera.main;
+    }
+
+    private void SingletonCheck()
+    {
+        if (_instance != null)
+        {
+            print($"an instance of {name} already exists");
+            Destroy(_instance);
+        }
+        _instance = this;
     }
 
     private void Update()
     {
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButtonDown(0))
         {
             SculptingHandling(RaycastToWorld());
         }
@@ -22,7 +36,7 @@ public class SculptingManager : MonoBehaviour
     private RaycastHit RaycastToWorld()
     {
         RaycastHit lHit;
-        Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out lHit, _MAX_RAYCAST_DISTANCE, _sculptableLayer);
+        Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out lHit, _MAX_RAYCAST_DISTANCE, sculptableLayer);
         return lHit;
     }
 
