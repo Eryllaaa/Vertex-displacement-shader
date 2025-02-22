@@ -18,12 +18,11 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 {
     uint lIndex = id.x;
     float3 currentVert = vertices[lIndex];
-    
     for (uint i = 1; i < pointCount; i++)
     {
         if (length(displacementPoints[i] - currentVert) < 1.0f)
         {
-            displacementBuffer[lIndex] -= 0.0001f;
+            displacementBuffer[lIndex] += 0.001f * smoothstep(1, 0, length(displacementPoints[i] - currentVert));
         }
     }
 }

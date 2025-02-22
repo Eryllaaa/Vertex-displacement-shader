@@ -5,7 +5,6 @@ using System.Linq;
 
 public class SculptableObject : MonoBehaviour
 {
-    [SerializeField] private Material _displacementMaterial; // the vertex shader that reads the compute shader's displacement and actually applies it to the mesh
     [SerializeField] private ComputeShader _computeShaderTemplate; // the template compute shader that writes to the displacement buffer
     private ComputeShader _computeShaderInstance; // the actual instance of the compute shader that will run on this mesh
 
@@ -23,6 +22,7 @@ public class SculptableObject : MonoBehaviour
     private MeshFilter _meshFilter;
 
     private List<Vector3> _displacementPoints = new List<Vector3>() { Vector3.zero };
+    private Vector3[] _startNormals;
 
     #region NAME CONSTANTS
     private const string _CS_MAIN_KERNEL = "CSMain";
@@ -45,7 +45,7 @@ public class SculptableObject : MonoBehaviour
 
     private void OnValidate()
     {
-        SetDisplacementMaterial();
+        //SetDisplacementMaterial();
     }
 
     /// <summary>
@@ -53,35 +53,40 @@ public class SculptableObject : MonoBehaviour
     /// </summary>
     private void SetDisplacementMaterial()
     {
-        MeshRenderer _meshRenderer = GetComponent<MeshRenderer>();
-        if (!_meshRenderer.sharedMaterials.Contains(_displacementMaterial))
-        {
-            Material[] lMaterials = new Material[_meshRenderer.sharedMaterials.Length + 1];
-            lMaterials[0] = _displacementMaterial;
-            for (int i = 1; i < lMaterials.Length - 1; i++)
-            {
-                lMaterials[i] = _meshRenderer.sharedMaterials[i];
-            }
-            _meshRenderer.sharedMaterials = lMaterials;
-        }
-        else if (_meshRenderer.sharedMaterials[0] != _displacementMaterial)
-        {
-            Material[] lMaterials = new Material[_meshRenderer.sharedMaterials.Length];
-            int lIndex = 1;
-            for (int i = 0; i < lMaterials.Length; i++)
-            {
-                if (_meshRenderer.sharedMaterials[i] != _displacementMaterial)
-                {
-                    lMaterials[lIndex] = _meshRenderer.sharedMaterials[i];
-                    lIndex++;
-                }
-                else
-                {
-                    lMaterials[0] = _meshRenderer.sharedMaterials[i];
-                }
-            }
-            _meshRenderer.sharedMaterials = lMaterials;
-        }
+        //MeshRenderer _meshRenderer = GetComponent<MeshRenderer>();
+        //if (!_meshRenderer.sharedMaterials.Contains(_displacementMaterial))
+        //{
+        //    Material[] lMaterials = new Material[] { _displacementMaterial };
+        //    _meshRenderer.sharedMaterials = lMaterials;
+        //}
+        //if (!_meshRenderer.sharedMaterials.Contains(_displacementMaterial))
+        //{
+        //    Material[] lMaterials = new Material[_meshRenderer.sharedMaterials.Length + 1];
+        //    lMaterials[0] = _displacementMaterial;
+        //    for (int i = 1; i < lMaterials.Length - 1; i++)
+        //    {
+        //        lMaterials[i] = _meshRenderer.sharedMaterials[i];
+        //    }
+        //    _meshRenderer.sharedMaterials = lMaterials;
+        //}
+        //else if (_meshRenderer.sharedMaterials[0] != _displacementMaterial)
+        //{
+        //    Material[] lMaterials = new Material[_meshRenderer.sharedMaterials.Length];
+        //    int lIndex = 1;
+        //    for (int i = 0; i < lMaterials.Length; i++)
+        //    {
+        //        if (_meshRenderer.sharedMaterials[i] != _displacementMaterial)
+        //        {
+        //            lMaterials[lIndex] = _meshRenderer.sharedMaterials[i];
+        //            lIndex++;
+        //        }
+        //        else
+        //        {
+        //            lMaterials[0] = _meshRenderer.sharedMaterials[i];
+        //        }
+        //    }
+        //    _meshRenderer.sharedMaterials = lMaterials;
+        //}
     }
 
     private void Start()
@@ -89,6 +94,7 @@ public class SculptableObject : MonoBehaviour
         StartComponents();
         StartComputeShader();
         _vertexCount = _mesh.vertexCount;
+        _startNormals = _mesh.normals;
         SetGroupCount(_vertexCount);
         StartBuffers();
     }
@@ -96,8 +102,8 @@ public class SculptableObject : MonoBehaviour
     private void StartComponents()
     {
         _meshFilter = GetComponent<MeshFilter>();
-        //Mesh lMesh = Instantiate(_meshFilter.sharedMesh); // Clone the mesh
-        //_meshFilter.mesh = lMesh;
+        Mesh lMesh = Instantiate(_meshFilter.sharedMesh); // Clone the mesh
+        _meshFilter.mesh = lMesh;
         _mesh = _meshFilter.mesh;
     }
 
@@ -128,14 +134,6 @@ public class SculptableObject : MonoBehaviour
         Vector3[] lDebugArray = new Vector3[10];
         _debugBuffer.SetData(lDebugArray);
 
-        // set buffer on material
-        _meshFilter.GetComponent<Renderer>().material.SetBuffer(_DISPLACEMENT_BUFFER, _displacementBuffer);
-        //_displacementMaterial.SetBuffer(_DISPLACEMENT_BUFFER, _displacementBuffer);
-
-        // set values on material
-        _meshFilter.GetComponent<Renderer>().material.SetInt(_DIPLACEMENT_BUFFER_SIZE, _vertexCount);
-        //_displacementMaterial.SetInt(_DIPLACEMENT_BUFFER_SIZE, _vertexCount);
-
         // set values on compute shader
         _computeShaderInstance.SetInt(_VERTEX_COUNT, _vertexCount);
         _computeShaderInstance.SetInt(_POINT_COUNT, 1);
@@ -146,9 +144,23 @@ public class SculptableObject : MonoBehaviour
         if (Input.GetMouseButtonDown(1)) ClearDisplacementPoints();
         SendDisplacementPoints();
         _computeShaderInstance.Dispatch(_computeShaderInstance.FindKernel(_CS_MAIN_KERNEL), _groupCount, 1, 1);
+        ApplyDisplacementToMesh();
 
-        //_mesh.RecalculateNormals(); // Optional: updates lighting
-        //_mesh.RecalculateBounds(); // Prevents culling issues
+        //oe faut juste que tu codes le shading sur le displacementshader.shader c'est trop relou la sinon
+    }
+
+    private void ApplyDisplacementToMesh()
+    {
+        Vector3[] vertices = _mesh.vertices;
+        float[] lDisplacements = new float[_vertexCount];
+        _displacementBuffer.GetData(lDisplacements);
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            vertices[i] += _startNormals[i] * lDisplacements[i] * Time.deltaTime;
+        }
+        _mesh.vertices = vertices;
+        _mesh.RecalculateNormals(); // Optional: updates lighting
+        _mesh.RecalculateBounds(); // Prevents culling issues
     }
 
     private void SetGroupCount(int pVertexCount)
