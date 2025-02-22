@@ -1,31 +1,40 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using System.Linq;
 
 public class SculptableObject : MonoBehaviour
 {
-    [SerializeField] private Material _sculptMaterial;
-    [SerializeField] private ComputeShader _computeShader;
+    [SerializeField] private Material _displacementMaterial; // the vertex shader that reads the compute shader's displacement and actually applies it to the mesh
+    [SerializeField] private ComputeShader _computeShaderTemplate; // the template compute shader that writes to the displacement buffer
+    private ComputeShader _computeShaderInstance; // the actual instance of the compute shader that will run on this mesh
+
     private const int _THREAD_PER_GROUP = 256;
     private int _groupCount = 0; // should change based on the mesh's vertex count
-    private MeshFilter _meshFilter;
+    private int _vertexCount = 0;
 
+    // compute bufffers
     private ComputeBuffer _displacementBuffer;
     private ComputeBuffer _displacementPointsBuffer;
     private ComputeBuffer _vertexBuffer;
-    private ComputeBuffer _DebugBuffer;
+    private ComputeBuffer _debugBuffer;
 
     private Mesh _mesh;
+    private MeshFilter _meshFilter;
 
     private List<Vector3> _displacementPoints = new List<Vector3>() { Vector3.zero };
 
+    #region NAME CONSTANTS
     private const string _CS_MAIN_KERNEL = "CSMain";
     private const string _SET_COUNT_KERNEL = "SetCount";
     private const string _DISPLACEMENT_BUFFER = "displacementBuffer";
     private const string _DISPLACEMENT_POINTS_BUFFER = "displacementPoints";
     private const string _VERTICES_BUFFER = "vertices";
+    private const string _VERTEX_COUNT = "vertexCount";
     private const string _POINT_COUNT = "pointCount";
     private const string _DEBUG_BUFFER = "debugBuffer";
+    private const string _DIPLACEMENT_BUFFER_SIZE = "displacementBufferSize";
+    #endregion
 
     public void OnHit(RaycastHit pHit)
     {
@@ -36,72 +45,110 @@ public class SculptableObject : MonoBehaviour
 
     private void OnValidate()
     {
-        GetComponent<MeshRenderer>().material = _sculptMaterial;
+        SetDisplacementMaterial();
     }
 
-    void Start()
+    /// <summary>
+    /// Insures taht the displacement material is in the sharedMaterials array and at index 0.
+    /// </summary>
+    private void SetDisplacementMaterial()
+    {
+        MeshRenderer _meshRenderer = GetComponent<MeshRenderer>();
+        if (!_meshRenderer.sharedMaterials.Contains(_displacementMaterial))
+        {
+            Material[] lMaterials = new Material[_meshRenderer.sharedMaterials.Length + 1];
+            lMaterials[0] = _displacementMaterial;
+            for (int i = 1; i < lMaterials.Length - 1; i++)
+            {
+                lMaterials[i] = _meshRenderer.sharedMaterials[i];
+            }
+            _meshRenderer.sharedMaterials = lMaterials;
+        }
+        else if (_meshRenderer.sharedMaterials[0] != _displacementMaterial)
+        {
+            Material[] lMaterials = new Material[_meshRenderer.sharedMaterials.Length];
+            int lIndex = 1;
+            for (int i = 0; i < lMaterials.Length; i++)
+            {
+                if (_meshRenderer.sharedMaterials[i] != _displacementMaterial)
+                {
+                    lMaterials[lIndex] = _meshRenderer.sharedMaterials[i];
+                    lIndex++;
+                }
+                else
+                {
+                    lMaterials[0] = _meshRenderer.sharedMaterials[i];
+                }
+            }
+            _meshRenderer.sharedMaterials = lMaterials;
+        }
+    }
+
+    private void Start()
+    {
+        StartComponents();
+        StartComputeShader();
+        _vertexCount = _mesh.vertexCount;
+        SetGroupCount(_vertexCount);
+        StartBuffers();
+    }
+
+    private void StartComponents()
     {
         _meshFilter = GetComponent<MeshFilter>();
+        //Mesh lMesh = Instantiate(_meshFilter.sharedMesh); // Clone the mesh
+        //_meshFilter.mesh = lMesh;
         _mesh = _meshFilter.mesh;
+    }
 
-        int vertexCount = _mesh.vertexCount;
-        SetGroupCount(vertexCount);
+    private void StartComputeShader()
+    {
+        _computeShaderInstance = Instantiate(_computeShaderTemplate);
+    }
 
-        // Create buffer
-        _displacementBuffer = new ComputeBuffer(vertexCount, sizeof(float));
-        _displacementBuffer.SetData(new float[vertexCount]);
+    private void StartBuffers()
+    {
+        // displacement buffer
+        _displacementBuffer = new ComputeBuffer(_vertexCount, sizeof(float));
+        _computeShaderInstance.SetBuffer(_computeShaderInstance.FindKernel(_CS_MAIN_KERNEL), _DISPLACEMENT_BUFFER, _displacementBuffer);
+        _displacementBuffer.SetData(new float[_vertexCount]);
+
+        // displacement points buffer
         _displacementPointsBuffer = new ComputeBuffer(1, sizeof(float) * 3);
-        _vertexBuffer = new ComputeBuffer(vertexCount, sizeof(float) * 3);
+        _computeShaderInstance.SetBuffer(_computeShaderInstance.FindKernel(_CS_MAIN_KERNEL), _DISPLACEMENT_POINTS_BUFFER, _displacementPointsBuffer);
 
-        _DebugBuffer = new ComputeBuffer(10, sizeof(float) * 3);
-        Vector3[] lDebugArray = new Vector3[10];
-        _DebugBuffer.SetData(lDebugArray);
-
-        _computeShader.SetBuffer(_computeShader.FindKernel(_CS_MAIN_KERNEL), _DEBUG_BUFFER, _DebugBuffer);
-
-        // Bind buffer on compute shader
-        _computeShader.SetBuffer(_computeShader.FindKernel(_CS_MAIN_KERNEL), _DISPLACEMENT_BUFFER, _displacementBuffer);
-
-        // Bind displacement points buffer
-        _computeShader.SetBuffer(_computeShader.FindKernel(_CS_MAIN_KERNEL), _DISPLACEMENT_POINTS_BUFFER, _displacementPointsBuffer);
-
-        // Communicate the vertices of the mesh to the compute shader
-        _computeShader.SetBuffer(_computeShader.FindKernel(_CS_MAIN_KERNEL), _VERTICES_BUFFER, _vertexBuffer);
+        // vertices buffer
+        _vertexBuffer = new ComputeBuffer(_vertexCount, sizeof(float) * 3);
+        _computeShaderInstance.SetBuffer(_computeShaderInstance.FindKernel(_CS_MAIN_KERNEL), _VERTICES_BUFFER, _vertexBuffer);
         _vertexBuffer.SetData(_mesh.vertices);
 
-        // Set buffer on material
-        _meshFilter.GetComponent<Renderer>().material.SetBuffer(_DISPLACEMENT_BUFFER, _displacementBuffer);
-        _meshFilter.GetComponent<Renderer>().material.SetInt("displacementBufferSize", vertexCount);
+        // debug buffer
+        _debugBuffer = new ComputeBuffer(10, sizeof(float) * 3);
+        _computeShaderInstance.SetBuffer(_computeShaderInstance.FindKernel(_CS_MAIN_KERNEL), _DEBUG_BUFFER, _debugBuffer);
+        Vector3[] lDebugArray = new Vector3[10];
+        _debugBuffer.SetData(lDebugArray);
 
-        _computeShader.SetInt("vertexCount", vertexCount);
-        _computeShader.SetInt("pointCount", 1);
+        // set buffer on material
+        _meshFilter.GetComponent<Renderer>().material.SetBuffer(_DISPLACEMENT_BUFFER, _displacementBuffer);
+        //_displacementMaterial.SetBuffer(_DISPLACEMENT_BUFFER, _displacementBuffer);
+
+        // set values on material
+        _meshFilter.GetComponent<Renderer>().material.SetInt(_DIPLACEMENT_BUFFER_SIZE, _vertexCount);
+        //_displacementMaterial.SetInt(_DIPLACEMENT_BUFFER_SIZE, _vertexCount);
+
+        // set values on compute shader
+        _computeShaderInstance.SetInt(_VERTEX_COUNT, _vertexCount);
+        _computeShaderInstance.SetInt(_POINT_COUNT, 1);
     }
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(1))
-        {
-            ClearDisplacementPoints();
-        }
-
+        if (Input.GetMouseButtonDown(1)) ClearDisplacementPoints();
         SendDisplacementPoints();
-        _computeShader.Dispatch(_computeShader.FindKernel(_CS_MAIN_KERNEL), _groupCount, 1, 1);
+        _computeShaderInstance.Dispatch(_computeShaderInstance.FindKernel(_CS_MAIN_KERNEL), _groupCount, 1, 1);
 
-        Vector3[] lDebug = new Vector3[1];
-        _DebugBuffer.GetData(lDebug);
-
-        foreach (Vector3 i in lDebug)
-        {
-            //print(i);
-        }
-
-        //Vector3[] data = new Vector3[_mesh.vertexCount];
-        //_vertexBuffer.GetData(data);
-        //int i = 0;
-        //foreach (Vector3 d in data)
-        //{
-        //    print(i++ + ": " + d);
-        //}
+        //_mesh.RecalculateNormals(); // Optional: updates lighting
+        //_mesh.RecalculateBounds(); // Prevents culling issues
     }
 
     private void SetGroupCount(int pVertexCount)
@@ -111,10 +158,10 @@ public class SculptableObject : MonoBehaviour
 
     private void SendDisplacementPoints()
     {
-        _computeShader.SetInt(_POINT_COUNT, _displacementPoints.Count);
+        _computeShaderInstance.SetInt(_POINT_COUNT, _displacementPoints.Count);
         _displacementPointsBuffer = new ComputeBuffer(_displacementPoints.Count, sizeof(float) * 3);
         _displacementPointsBuffer.SetData(_displacementPoints);
-        _computeShader.SetBuffer(_computeShader.FindKernel(_CS_MAIN_KERNEL), _DISPLACEMENT_POINTS_BUFFER, _displacementPointsBuffer);
+        _computeShaderInstance.SetBuffer(_computeShaderInstance.FindKernel(_CS_MAIN_KERNEL), _DISPLACEMENT_POINTS_BUFFER, _displacementPointsBuffer);
     }
 
     public void AddDisplacementPoint(Vector3 pDisplacementPos)
@@ -136,5 +183,8 @@ public class SculptableObject : MonoBehaviour
     private void OnDestroy()
     {
         _displacementBuffer.Release();
+        _displacementPointsBuffer.Release();
+        _vertexBuffer.Release();
+        _debugBuffer.Release();
     }
 }
