@@ -1,28 +1,70 @@
 ﻿#pragma kernel CSMain
 
-RWStructuredBuffer<float> displacementBuffer : register(u0);
-RWStructuredBuffer<float3> displacementPoints : register(u1);
-RWStructuredBuffer<int> debugBuffer : register(u2);
-StructuredBuffer<float3> vertices : register(t0);
-
-uint pointCount = 0;
-uint vertexCount = 0;
-
-bool CheckExit(uint pIndex)
+struct SculptPoint
 {
-    return pIndex > vertexCount;
+    float3 position;
+    float radius;
+    float direction; // --> 1 or -1 in order to change the direction of the displacement
+    float ratio;
+};
+
+RWStructuredBuffer<float3> vertices : register(u0);
+RWStructuredBuffer<float> displacements : register(u1);
+RWStructuredBuffer<int3> debugBuffer : register(u2);
+
+StructuredBuffer<float3> startNormals : register(t0);
+StructuredBuffer<float3> verticesStartPos : register(t1);
+StructuredBuffer<SculptPoint> sculptPoints : register(t2);
+
+// sculptable surface values
+const float displacementDistance = 0;
+
+//dynamic values
+float3 previousSculptPos;
+uint sculptPointsCount = 0;
+float displacement = 0;
+
+float3 ProjectOnSegment(float3 A, float3 B, float3 position)
+{
+    float3 AP = position - A;
+    float3 AB = B - A;
+    return A + dot(AP, AB) / dot(AB, AB) * AB;
 }
 
 [numthreads(256,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
     uint lIndex = id.x;
-    float3 currentVert = vertices[lIndex];
-    for (uint i = 1; i < pointCount; i++)
+    
+    float3 currentVertStartPos = verticesStartPos[lIndex];
+    displacements[lIndex] -= 0.01;
+    //for (uint i = 0; i < sculptPointsCount; i++)
+    //{
+    //    float len = length(sculptPoints[i].position - currentVertStartPos);
+    //    if (len < sculptPoints[i].radius)
+    //    {
+    //        displacement = smoothstep(sculptPoints[i].radius, 0, len) * sculptPoints[i].direction * sculptPoints[i].ratio;
+    //        if (displacement > displacements[lIndex])
+    //        {
+    //            displacements[lIndex] = displacement;
+    //        }
+    //    }
+    //}
+    
+    float3 currentSculptPos = sculptPoints[sculptPointsCount - 1].position;
+    if (previousSculptPos.x != currentSculptPos.x || previousSculptPos.y != currentSculptPos.y || previousSculptPos.z != currentSculptPos.z)
     {
-        if (length(displacementPoints[i] - currentVert) < 1.0f)
-        {
-            displacementBuffer[lIndex] += 0.001f * smoothstep(1, 0, length(displacementPoints[i] - currentVert));
-        }
+        float3 interpolatedPos = ProjectOnSegment(previousSculptPos.xyz, currentSculptPos, verticesStartPos[lIndex]);
+    
+        float3 clampMin = min(previousSculptPos, currentSculptPos);
+        float3 clampMax = max(previousSculptPos, currentSculptPos);
+        interpolatedPos = clamp(interpolatedPos, clampMin, clampMax);
+        float len = length(verticesStartPos[lIndex] - interpolatedPos);
+        
+        displacement = smoothstep(0.25f, 0, len) * sculptPoints[sculptPointsCount - 1].direction * sculptPoints[sculptPointsCount - 1].ratio;
+        
+        if (displacement > displacements[lIndex]) displacements[lIndex] = displacement;
     }
+    
+    vertices[lIndex] = verticesStartPos[lIndex] + startNormals[lIndex] * displacementDistance * clamp(displacements[lIndex], 0, 1);
 }

@@ -27,10 +27,7 @@ public class SculptingManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            SculptingHandling(RaycastToWorld());
-        }
+        InputsHandling();
     }
 
     private RaycastHit RaycastToWorld()
@@ -40,7 +37,7 @@ public class SculptingManager : MonoBehaviour
         return lHit;
     }
 
-    private void SculptingHandling(RaycastHit pHit)
+    private void DetectionHandling(RaycastHit pHit)
     {
         if (pHit.collider == null)
         {
@@ -53,5 +50,13 @@ public class SculptingManager : MonoBehaviour
             return;
         }
         pHit.transform.GetComponent<SculptableObject>().OnHit(pHit);
+    }
+
+    private void InputsHandling()
+    {
+        if (Input.GetMouseButton(0))
+        {
+            DetectionHandling(RaycastToWorld());
+        }
     }
 }

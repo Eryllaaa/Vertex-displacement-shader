@@ -25,11 +25,15 @@ public class SculptableObject : MonoBehaviour
     private int _vertexCount = 0;
 
     // compute bufffers
+
+    // updated every frame
     private ComputeBuffer _sculptPointsBuffer;
+    private ComputeBuffer _displacementBuffer;
+    private ComputeBuffer _debugBuffer;
     private ComputeBuffer _vertexBuffer;
+    // only at start
     private ComputeBuffer _startNormalsBuffer;
     private ComputeBuffer _verticesStartPosBuffer;
-    private ComputeBuffer _debugBuffer;
 
     private Mesh _mesh;
     private MeshFilter _meshFilter;
@@ -50,22 +54,28 @@ public class SculptableObject : MonoBehaviour
 
     private const string _VERTICES_START_POS_BUFFER = "verticesStartPos";
     private const string _START_NORMALS_BUFFER = "startNormals";
+
+    private const string _DISPLACEMENTS_BUFFER = "displacements";
+
     private const string _DEBUG_BUFFER = "debugBuffer";
 
     private const string _DISPLACEMENT_DISTANCE = "displacementDistance";
+
+    private const string _PREVIOUS_SCULPT_POS = "previousSculptPos";
     #endregion
 
     public void OnHit(RaycastHit pHit)
     {
         Vector3 lLocalPos = transform.InverseTransformPoint(pHit.point);
-        AddDisplacementPoint(lLocalPos);
+        //AddDisplacementPoint(lLocalPos);
+        SetDisplacementPoint(lLocalPos);
         print("hit at : " + lLocalPos);
     }
 
     private void OnValidate()
     {
         SetDisplacementMaterial();
-        _computeShaderInstance.SetFloat(_DISPLACEMENT_DISTANCE, _displacementDistance);
+        if (_computeShaderInstance != null) _computeShaderInstance.SetFloat(_DISPLACEMENT_DISTANCE, _displacementDistance);
     }
 
     /// <summary>
@@ -91,9 +101,6 @@ public class SculptableObject : MonoBehaviour
     {
         StartComponents();
         StartComputeShader();
-        _vertexCount = _mesh.vertexCount;
-        _startNormals = _mesh.normals;
-        SetGroupCount(_vertexCount);
         StartBuffers();
     }
 
@@ -103,6 +110,10 @@ public class SculptableObject : MonoBehaviour
         Mesh lMesh = Instantiate(_meshFilter.sharedMesh); // Clone the mesh
         _meshFilter.mesh = lMesh;
         _mesh = _meshFilter.mesh;
+
+        _vertexCount = _mesh.vertexCount;
+        _startNormals = _mesh.normals;
+        SetGroupCount(_vertexCount);
     }
 
     private void StartComputeShader()
@@ -126,6 +137,11 @@ public class SculptableObject : MonoBehaviour
         _verticesStartPosBuffer = new ComputeBuffer(_vertexCount, sizeof(float) * 3);
         _computeShaderInstance.SetBuffer(CSMainKernelID, _VERTICES_START_POS_BUFFER, _verticesStartPosBuffer);
         _verticesStartPosBuffer.SetData(_mesh.vertices);
+
+        // displacement buffer
+        _displacementBuffer = new ComputeBuffer(_vertexCount, sizeof(float));
+        _computeShaderInstance.SetBuffer(CSMainKernelID, _DISPLACEMENTS_BUFFER, _displacementBuffer);
+        _displacementBuffer.SetData(new float[_vertexCount]);
 
         // start normals buffer
         _startNormalsBuffer = new ComputeBuffer(_vertexCount, sizeof(float) * 3);
@@ -169,6 +185,8 @@ public class SculptableObject : MonoBehaviour
 
     private void SendDisplacementPoints()
     {
+        print(_previousSculptPointPos);
+        _computeShaderInstance.SetVector(_PREVIOUS_SCULPT_POS, _previousSculptPointPos);
         _computeShaderInstance.SetInt(_SCULPT_POINTS_COUNT, _sculptPoints.Count);
 
         _sculptPointsBuffer = new ComputeBuffer(_sculptPoints.Count, sizeof(float) * 6);
@@ -190,6 +208,7 @@ public class SculptableObject : MonoBehaviour
         }
     }
 
+    private Vector3 _previousSculptPointPos = Vector3.zero;
     public void AddDisplacementPoint(Vector3 pSculptPosition)
     {
         if (_sculptPoints.Count >= 999)
@@ -197,12 +216,30 @@ public class SculptableObject : MonoBehaviour
             print("too many hits");
             return;
         }
+
         SculptPoint lSculptPoint = new SculptPoint(pSculptPosition, 0.25f, SculptDirection.up);
+        
+        _previousSculptPointPos = _sculptPoints[_sculptPoints.Count - 1].position;
         _sculptPoints.Add(lSculptPoint);
+    }
+
+    public void SetDisplacementPoint(Vector3 pSculptPosition)
+    {
+        _previousSculptPointPos = _sculptPoints[_sculptPoints.Count - 1].position;
+        SculptPoint lSculptPoint = new SculptPoint(pSculptPosition, 0.25f, SculptDirection.up);
+        if (_sculptPoints.Count < 2) _sculptPoints.Add(lSculptPoint);
+        else
+        {
+            lSculptPoint = new SculptPoint(_sculptPoints[1]);
+            lSculptPoint.position = pSculptPosition;
+            _sculptPoints[1] = lSculptPoint;
+        } 
     }
 
     public void ClearDisplacementPoints()
     {
+        float[] lDisplacementReset = new float[_vertexCount];
+        _displacementBuffer.SetData(lDisplacementReset);
         _sculptPoints.Clear();
         _sculptPoints.Add(new SculptPoint());
     }
