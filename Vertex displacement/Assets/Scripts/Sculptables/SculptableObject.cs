@@ -5,15 +5,7 @@ using UnityEngine;
 public class SculptableObject : MonoBehaviour
 {
     [SerializeField, Range(0.1f, 10f)] private float _displacementDistance = 1f;
-    private float MaxDisplacementDistance
-    {
-        get { return _displacementDistance; }
-        set
-        {
-            _displacementDistance = value;
-            _computeShaderInstance.SetFloat("maxDisplacementDistance", value);
-        }
-    }
+    [SerializeField, Range(0.1f, 2f)] private float _sculptRadius = 1f;
 
     [SerializeField] private ComputeShader _computeShaderTemplate; // the template compute shader that writes to the displacement buffer
     [SerializeField] private Material _tesselationMaterialTemplate; // the template compute shader that writes to the displacement buffer
@@ -60,6 +52,7 @@ public class SculptableObject : MonoBehaviour
     private const string _DEBUG_BUFFER = "debugBuffer";
 
     private const string _DISPLACEMENT_DISTANCE = "displacementDistance";
+    private const string _SCULPT_RADIUS = "sculptRadius";
 
     private const string _PREVIOUS_SCULPT_POS = "previousSculptPos";
     #endregion
@@ -76,6 +69,7 @@ public class SculptableObject : MonoBehaviour
     {
         SetDisplacementMaterial();
         if (_computeShaderInstance != null) _computeShaderInstance.SetFloat(_DISPLACEMENT_DISTANCE, _displacementDistance);
+        if (_computeShaderInstance != null) _computeShaderInstance.SetFloat(_SCULPT_RADIUS, _sculptRadius);
     }
 
     /// <summary>
@@ -158,6 +152,7 @@ public class SculptableObject : MonoBehaviour
         _computeShaderInstance.SetInt(_VERTEX_COUNT, _vertexCount);
         _computeShaderInstance.SetInt(_SCULPT_POINTS_COUNT, 1);
         _computeShaderInstance.SetFloat(_DISPLACEMENT_DISTANCE, _displacementDistance);
+        _computeShaderInstance.SetFloat(_SCULPT_RADIUS, _sculptRadius);
     }
 
     private void Update()
@@ -185,12 +180,13 @@ public class SculptableObject : MonoBehaviour
 
     private void SendDisplacementPoints()
     {
-        print(_previousSculptPointPos);
         _computeShaderInstance.SetVector(_PREVIOUS_SCULPT_POS, _previousSculptPointPos);
         _computeShaderInstance.SetInt(_SCULPT_POINTS_COUNT, _sculptPoints.Count);
 
-        _sculptPointsBuffer = new ComputeBuffer(_sculptPoints.Count, sizeof(float) * 6);
+        _sculptPointsBuffer = new ComputeBuffer(_sculptPoints.Count, sizeof(float) * 5);
+
         UpdateSculptPoints();
+
         _sculptPointsBuffer.SetData(_sculptPoints);
         _computeShaderInstance.SetBuffer(CSMainKernelID, _SCULPT_POINTS_BUFFER, _sculptPointsBuffer);
     }
@@ -217,7 +213,7 @@ public class SculptableObject : MonoBehaviour
             return;
         }
 
-        SculptPoint lSculptPoint = new SculptPoint(pSculptPosition, 0.25f, SculptDirection.up);
+        SculptPoint lSculptPoint = new SculptPoint(pSculptPosition, SculptDirection.up);
         
         _previousSculptPointPos = _sculptPoints[_sculptPoints.Count - 1].position;
         _sculptPoints.Add(lSculptPoint);
@@ -226,7 +222,7 @@ public class SculptableObject : MonoBehaviour
     public void SetDisplacementPoint(Vector3 pSculptPosition)
     {
         _previousSculptPointPos = _sculptPoints[_sculptPoints.Count - 1].position;
-        SculptPoint lSculptPoint = new SculptPoint(pSculptPosition, 0.25f, SculptDirection.up);
+        SculptPoint lSculptPoint = new SculptPoint(pSculptPosition, SculptDirection.up);
         if (_sculptPoints.Count < 2) _sculptPoints.Add(lSculptPoint);
         else
         {
@@ -250,10 +246,19 @@ public class SculptableObject : MonoBehaviour
         _computeShaderInstance.SetFloat(_DISPLACEMENT_DISTANCE, pValue);
     }
 
+    private void SetSCulptRadius(float pValue)
+    {
+        _sculptRadius = pValue;
+        _computeShaderInstance.SetFloat(_SCULPT_RADIUS, pValue);
+    }
+
     private void OnDestroy()
     {
         _sculptPointsBuffer.Release();
         _vertexBuffer.Release();
+        _displacementBuffer.Release();
+        _startNormalsBuffer.Release();
+        _verticesStartPosBuffer.Release();
         if (_debugBuffer != null)_debugBuffer.Release();
     }
 }
