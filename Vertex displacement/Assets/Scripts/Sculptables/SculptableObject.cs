@@ -62,7 +62,6 @@ public class SculptableObject : MonoBehaviour
         Vector3 lLocalPos = transform.InverseTransformPoint(pHit.point);
         //AddDisplacementPoint(lLocalPos);
         SetDisplacementPoint(lLocalPos);
-        print("hit at : " + lLocalPos);
     }
 
     private void OnValidate()
@@ -205,6 +204,7 @@ public class SculptableObject : MonoBehaviour
     }
 
     private Vector3 _previousSculptPointPos = Vector3.zero;
+    private float _interpolationMargin => 0.15f * _sculptRadius;
     public void AddDisplacementPoint(Vector3 pSculptPosition)
     {
         if (_sculptPoints.Count >= 999)
@@ -215,13 +215,13 @@ public class SculptableObject : MonoBehaviour
 
         SculptPoint lSculptPoint = new SculptPoint(pSculptPosition, SculptDirection.up);
         
-        _previousSculptPointPos = _sculptPoints[_sculptPoints.Count - 1].position;
+        if ((_previousSculptPointPos - _sculptPoints[_sculptPoints.Count - 1].position).magnitude > _interpolationMargin) _previousSculptPointPos = _sculptPoints[_sculptPoints.Count - 1].position;
         _sculptPoints.Add(lSculptPoint);
     }
 
     public void SetDisplacementPoint(Vector3 pSculptPosition)
     {
-        _previousSculptPointPos = _sculptPoints[_sculptPoints.Count - 1].position;
+        if ((_previousSculptPointPos - _sculptPoints[_sculptPoints.Count - 1].position).magnitude > _interpolationMargin) _previousSculptPointPos = _sculptPoints[_sculptPoints.Count - 1].position;
         SculptPoint lSculptPoint = new SculptPoint(pSculptPosition, SculptDirection.up);
         if (_sculptPoints.Count < 2) _sculptPoints.Add(lSculptPoint);
         else
