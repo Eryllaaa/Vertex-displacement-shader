@@ -1,7 +1,4 @@
-
 using UnityEngine;
-
-public enum SculptDirection { up, down }
 
 public struct SculptPoint
 {

@@ -1,0 +1,40 @@
+﻿#pragma kernel CSMain
+
+// updated every frame
+RWStructuredBuffer<float3> vertices : register(u0);
+RWStructuredBuffer<float> displacements : register(u1);
+// initiated at start
+StructuredBuffer<float3> startNormals : register(t0);
+StructuredBuffer<float3> verticesStartPos : register(t1);
+
+// sculptable surface values
+const float displacementDistance = 0;
+
+// dynamic values
+float3 currentPos = float3(0, 0, 0);
+int currentDir = 0;
+float currentRadius = 0;
+
+float Smooth()
+{
+    
+}
+
+float3 ProjectOnSegment(float3 A, float3 B, float3 position)
+{
+    float3 AP = position - A;
+    float3 AB = B - A;
+    return A + dot(AP, AB) / dot(AB, AB) * AB;
+}
+
+[numthreads(256,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    uint lIndex = id.x;
+    float len = length(currentPos - verticesStartPos[lIndex]);
+    if (len < currentRadius)
+    {
+        displacements[lIndex] += smoothstep(currentRadius, 0, len) * 0.1 * currentDir;
+    }
+    vertices[lIndex] = verticesStartPos[lIndex] + startNormals[lIndex] * displacements[lIndex];
+}

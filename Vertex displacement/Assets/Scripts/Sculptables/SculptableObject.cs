@@ -229,7 +229,7 @@ public class SculptableObject : MonoBehaviour
             lSculptPoint = new SculptPoint(_sculptPoints[1]);
             lSculptPoint.position = pSculptPosition;
             _sculptPoints[1] = lSculptPoint;
-        } 
+        }
     }
 
     public void ClearDisplacementPoints()

@@ -1,14 +1,12 @@
 using UnityEngine;
 
-public enum SculptDirection { up, down, none }
-
-public struct SculptHit
+public struct SculptHit2
 {
     public Vector3 position;
-    public int direction; // --> 1 or -1 in order to change the direction of the displacement
+    public int direction;
     public float radius;
 
-    public SculptHit(Vector3 pPosition, SculptDirection pDirection, float pRadius)
+    public SculptHit2(Vector3 pPosition, SculptDirection pDirection, float pRadius)
     {
         position = pPosition;
         switch (pDirection)
@@ -29,12 +27,12 @@ public struct SculptHit
         radius = pRadius;
     }
 
-    public SculptHit(SculptHit pOther)
+    public SculptHit2(SculptHit2 pOther)
     {
         position = pOther.position;
         direction = pOther.direction;
         radius = pOther.radius;
     }
 
-    public static SculptHit none = new SculptHit(Vector3.zero, SculptDirection.none, 0f);
+    public static SculptHit2 none = new SculptHit2(Vector3.zero, SculptDirection.none, 0);
 }

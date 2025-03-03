@@ -52,18 +52,21 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     //}
     
     float3 currentSculptPos = sculptPoints[sculptPointsCount - 1].position;
-    if (previousSculptPos.x != currentSculptPos.x || previousSculptPos.y != currentSculptPos.y || previousSculptPos.z != currentSculptPos.z)
+    
+    if (true)
     {
-        float3 interpolatedPos = ProjectOnSegment(previousSculptPos.xyz, currentSculptPos, verticesStartPos[lIndex]);
+        float3 interpolatedPos = ProjectOnSegment(previousSculptPos, currentSculptPos, verticesStartPos[lIndex]);
     
         float3 clampMin = min(previousSculptPos, currentSculptPos);
         float3 clampMax = max(previousSculptPos, currentSculptPos);
+        
         interpolatedPos = clamp(interpolatedPos, clampMin, clampMax);
+
         float len = length(verticesStartPos[lIndex] - interpolatedPos);
         
         displacement = smoothstep(0.25f, 0, len) * sculptPoints[sculptPointsCount - 1].direction * sculptPoints[sculptPointsCount - 1].ratio;
         
-        if (displacement > displacements[lIndex]) displacements[lIndex] = displacement;
+        if (displacements[lIndex] < displacement) displacements[lIndex] = displacement;
     }
     
     vertices[lIndex] = verticesStartPos[lIndex] + startNormals[lIndex] * displacementDistance * clamp(displacements[lIndex], 0, 1);
