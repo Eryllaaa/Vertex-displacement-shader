@@ -3,21 +3,22 @@
 // updated every frame
 RWStructuredBuffer<float3> vertices : register(u0);
 RWStructuredBuffer<float> displacements : register(u1);
+RWStructuredBuffer<float> targetDisplacements : register(u2);
 // initiated at start
 StructuredBuffer<float3> startNormals : register(t0);
 StructuredBuffer<float3> verticesStartPos : register(t1);
 
 // sculptable surface values
-const float displacementDistance = 0;
+const float maxDisplacement = 0;
 
 // dynamic values
 float3 currentPos = float3(0, 0, 0);
 int currentDir = 0;
 float currentRadius = 0;
 
-float Smooth()
+float GetTargetDisplacement(float distance, float radius)
 {
-    
+    return smoothstep(radius, 0, distance);
 }
 
 float3 ProjectOnSegment(float3 A, float3 B, float3 position)
@@ -27,14 +28,23 @@ float3 ProjectOnSegment(float3 A, float3 B, float3 position)
     return A + dot(AP, AB) / dot(AB, AB) * AB;
 }
 
+void SmoothlyApplyDisplacement(uint index)
+{
+    displacements[index] = lerp(displacements[index], targetDisplacements[index], 0.1);
+}
+
 [numthreads(256,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    uint lIndex = id.x;
-    float len = length(currentPos - verticesStartPos[lIndex]);
+    uint index = id.x;
+    float len = length(currentPos - verticesStartPos[index]);
     if (len < currentRadius)
     {
-        displacements[lIndex] += smoothstep(currentRadius, 0, len) * 0.1 * currentDir;
+        targetDisplacements[index] += GetTargetDisplacement(len, currentRadius) * 0.1 * currentDir;
+        targetDisplacements[index] = clamp(targetDisplacements[index], -maxDisplacement, maxDisplacement);
     }
-    vertices[lIndex] = verticesStartPos[lIndex] + startNormals[lIndex] * displacements[lIndex];
+    
+    SmoothlyApplyDisplacement(index);
+
+    vertices[index] = verticesStartPos[index] + startNormals[index] * displacements[index];
 }

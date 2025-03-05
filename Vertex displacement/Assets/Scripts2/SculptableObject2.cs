@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class SculptableObject2 : MonoBehaviour
 {
-    [SerializeField, Range(0.1f, 10f)] private float _displacementDistance = 1f;
+    [SerializeField, Range(0.1f, 10f)] private float _maxDisplacement = 1f;
 
     #region Materials and Shaders
     [SerializeField] private ComputeShader _computeShaderTemplate;
@@ -26,6 +26,7 @@ public class SculptableObject2 : MonoBehaviour
 
     // updated every frame
     private ComputeBuffer _displacementsBuffer;
+    private ComputeBuffer _targetDisplacementsBuffer;
     private ComputeBuffer _vertexBuffer;
     // only at start
     private ComputeBuffer _startNormalsBuffer;
@@ -40,14 +41,24 @@ public class SculptableObject2 : MonoBehaviour
     private const string _VERTICES_START_POS_BUFFER = "verticesStartPos";
     private const string _START_NORMALS_BUFFER = "startNormals";
     private const string _DISPLACEMENTS_BUFFER = "displacements";
+    private const string _TARGET_DISPLACEMENTS_BUFFER = "targetDisplacements";
 
     // Values
     private const string _CURRENT_SCULPT_POS = "currentPos";
     private const string _CURRENT_SCULPT_DIR = "currentDir";
     private const string _CURRENT_SCULPT_RADIUS = "currentRadius";
+    private const string _MAX_DISPLACEMENT = "maxDisplacement";
     #endregion
 
     #region Initialization
+    private void OnValidate()
+    {
+        if (_computeShader != null)
+        {
+            _computeShader.SetFloat(_MAX_DISPLACEMENT, _maxDisplacement);
+        }
+    }
+
     private void Start()
     {
         StartComponents();
@@ -77,12 +88,13 @@ public class SculptableObject2 : MonoBehaviour
         _computeShader = Instantiate(_computeShaderTemplate);
         CSMainKernelId = _computeShader.FindKernel(_CS_MAIN_KERNEL);
 
-        // START VALUES
+        // --- INITIALIZE VALUES ---
         _computeShader.SetVector(_CURRENT_SCULPT_POS, Vector3.zero);
         _computeShader.SetInt(_CURRENT_SCULPT_DIR, 0);
         _computeShader.SetFloat(_CURRENT_SCULPT_RADIUS, 0f);
+        _computeShader.SetFloat(_MAX_DISPLACEMENT, _maxDisplacement);
 
-        // START BUFFERS
+        // --- INITIALIZE BUFFERS ---
 
         // vertices buffer
         _vertexBuffer = new ComputeBuffer(_vertexCount, sizeof(float) * 3);
@@ -103,6 +115,11 @@ public class SculptableObject2 : MonoBehaviour
         _displacementsBuffer = new ComputeBuffer(_vertexCount, sizeof(float));
         _computeShader.SetBuffer(CSMainKernelId, _DISPLACEMENTS_BUFFER, _displacementsBuffer);
         _displacementsBuffer.SetData(new float[_vertexCount]);
+
+        // target displacement buffer
+        _targetDisplacementsBuffer = new ComputeBuffer(_vertexCount, sizeof(float));
+        _computeShader.SetBuffer(CSMainKernelId, _TARGET_DISPLACEMENTS_BUFFER, _targetDisplacementsBuffer);
+        _targetDisplacementsBuffer.SetData(new float[_vertexCount]);
     }
     #endregion
 
@@ -133,13 +150,13 @@ public class SculptableObject2 : MonoBehaviour
     {
         _computeShader.SetVector(_CURRENT_SCULPT_POS, transform.InverseTransformPoint(lHit.position));
         _computeShader.SetInt(_CURRENT_SCULPT_DIR, lHit.direction);
-        _computeShader.SetFloat(_CURRENT_SCULPT_RADIUS, lHit.radius);
+        _computeShader.SetFloat(_CURRENT_SCULPT_RADIUS, lHit.radius / transform.localScale.x);
     }
 
     private void ClearSculptHit()
     {
         SculptHit2 lHit = SculptHit2.none;
-        _computeShader.SetVector(_CURRENT_SCULPT_POS, transform.InverseTransformPoint(lHit.position));
+        _computeShader.SetVector(_CURRENT_SCULPT_POS, lHit.position);
         _computeShader.SetInt(_CURRENT_SCULPT_DIR, lHit.direction);
         _computeShader.SetFloat(_CURRENT_SCULPT_RADIUS, lHit.radius);
     }
@@ -153,6 +170,13 @@ public class SculptableObject2 : MonoBehaviour
         }
         _displacementsBuffer.SetData(lDefaultDisplacement);
     }
+
+    public void SetMaxDisplacement(float pValue)
+    {
+        _maxDisplacement = pValue;
+        if (_computeShader != null) _computeShader.SetFloat(_MAX_DISPLACEMENT, _maxDisplacement);
+    }
+
     public void OnHit(SculptHit2 pHit)
     {
         _currentHit = pHit;
@@ -166,6 +190,7 @@ public class SculptableObject2 : MonoBehaviour
         _vertexBuffer.Release();
         _startNormalsBuffer.Release();
         _verticesStartPosBuffer.Release();
+        _targetDisplacementsBuffer.Release();
     }
     #endregion
 }

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class SculptingManager2 : MonoBehaviour
@@ -20,8 +21,10 @@ public class SculptingManager2 : MonoBehaviour
     [SerializeField] public LayerMask sculptableLayer;
 
     [Header("Sculpting")]
-    [SerializeField] private float _sculptingRadius;
-    [SerializeField] private SculptDirection _sculptingDirection;
+    [SerializeField, Range(0.1f, MAX_SCULPT_RADIUS)] private float _sculptRadius = 0.2f;
+    private const float MIN_SCULPT_RADIUS = 0.1f;
+    private const float MAX_SCULPT_RADIUS = 10f;
+    [SerializeField] private SculptDirection _sculptDirection;
     #endregion
 
     private Camera _camera;
@@ -62,14 +65,20 @@ public class SculptingManager2 : MonoBehaviour
 
     private SculptHit2 RaycastToSculptHit(RaycastHit pHit)
     {
-        return new SculptHit2(pHit.point, _sculptingDirection, _sculptingRadius);
+        return new SculptHit2(pHit.point, _sculptDirection, _sculptRadius);
     }
 
     private void InputsHandling()
     {
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButton(0) || Input.GetKeyDown(KeyCode.Space))
         {
             DetectionHandling(RaycastToWorld());
         }
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            _sculptDirection = (SculptDirection)((((int)_sculptDirection) + 1) % 2);
+        }
+        //mouse scroll wheel to change radius --> "_sculptRadius * _sculptRadius" to increase rate of change the bigger the radius so we don't scroll for 1 hour when radius is large and stay precise when radius is small (it's just a x^3)
+        _sculptRadius -= Input.mouseScrollDelta.y * _sculptRadius * _sculptRadius * 0.05f;
     }
 }
