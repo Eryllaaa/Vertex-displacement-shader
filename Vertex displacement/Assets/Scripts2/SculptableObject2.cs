@@ -1,12 +1,15 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
+[RequireComponent(typeof(Mesh), typeof(MeshFilter), typeof(MeshCollider))]
 public class SculptableObject2 : MonoBehaviour
 {
     [SerializeField, Range(0.1f, 10f)] private float _maxDisplacement = 1f;
 
     #region Materials and Shaders
     [SerializeField] private ComputeShader _computeShaderTemplate;
+    [SerializeField] private MeshCollider _physicsCollider; // not the raycast collider but the collider used for physics with the ball that is a child of this game object.
 
     private Mesh _mesh;
     private MeshFilter _meshFilter;
@@ -66,18 +69,23 @@ public class SculptableObject2 : MonoBehaviour
     {
         StartComponents();
         StartComputeShader();
+        StartCoroutine(ColliderUpdate());
     }
 
     private void StartComponents()
     {
         _meshFilter = GetComponent<MeshFilter>();
+
         Mesh lMesh = Instantiate(_meshFilter.sharedMesh); // Clone the mesh
-        _meshFilter.mesh = lMesh;
+
         _mesh = lMesh;
+        _meshFilter.mesh = _mesh;
+        _physicsCollider.sharedMesh = _mesh;
 
         _vertexCount = _mesh.vertexCount;
         _startNormals = _mesh.normals;
         _startVertexPos = _mesh.vertices;
+
         SetGroupCount(_vertexCount);
     }
 
@@ -142,14 +150,25 @@ public class SculptableObject2 : MonoBehaviour
         ApplyDisplacementToMesh();
     }
 
+    private float diff = 0;
     private void ApplyDisplacementToMesh()
     {
         Vector3[] lVertices = new Vector3[_vertexCount];
+
         _vertexBuffer.GetData(lVertices);
         _mesh.vertices = lVertices;
 
         _mesh.RecalculateNormals();
         _mesh.RecalculateBounds();
+    }
+
+    private IEnumerator ColliderUpdate()
+    {
+        while (true)
+        {
+            _physicsCollider.sharedMesh = _mesh;
+            yield return new WaitForSeconds(0.005f);
+        }
     }
 
     private void SendSculptHit(SculptHit2 lHit)
@@ -181,7 +200,6 @@ public class SculptableObject2 : MonoBehaviour
         {
             lDefaultDisplacement[i] = 0f;
         }
-        _displacementsBuffer.SetData(lDefaultDisplacement);
         _targetDisplacementsBuffer.SetData(lDefaultDisplacement);
     }
 

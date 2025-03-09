@@ -48,13 +48,22 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     
     float3 interpolatedPos = ProjectOnSegment(currentPos, prevPos, verticesStartPos[index]);
     interpolatedPos = clamp(interpolatedPos, clampMin, clampMax);
-    
+
     float len = length(interpolatedPos - verticesStartPos[index]);
     if (len < currentRadius)
     {
         float distToMax = maxDisplacement - abs(targetDisplacements[index]);
+        bool counterDir = (targetDisplacements[index] < 0 && currentDir > 0) || (targetDisplacements[index] > 0 && currentDir < 0);
         
-        targetDisplacements[index] += sculptSpeed * (GetTargetDisplacementRatio(len, currentRadius)) * smoothstep(0, maxDisplacement, distToMax) * currentDir * deltaTime;
+        if (counterDir)
+        {
+            targetDisplacements[index] += sculptSpeed * (GetTargetDisplacementRatio(len, currentRadius)) * currentDir * deltaTime;
+        }
+        else
+        {
+            targetDisplacements[index] += sculptSpeed * (GetTargetDisplacementRatio(len, currentRadius)) * smoothstep(0, maxDisplacement, distToMax) * currentDir * deltaTime;
+        }
+        
         targetDisplacements[index] = clamp(targetDisplacements[index], -maxDisplacement, maxDisplacement);
     }
     

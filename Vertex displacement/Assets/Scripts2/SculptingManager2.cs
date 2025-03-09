@@ -44,6 +44,9 @@ public class SculptingManager2 : MonoBehaviour
         _camera = Camera.main;
     }
 
+    int index = 0;
+    Color[] colors = new Color[3] { Color.red, Color.blue, Color.green };
+
     private void Update()
     {
         InputsHandling();
@@ -87,14 +90,14 @@ public class SculptingManager2 : MonoBehaviour
 
     private void InputsHandling()
     {
-        if (Input.GetMouseButton(0) || Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetMouseButton(0))
         {
             DetectionHandling(RaycastToWorld());
             _interpolate = true;
         }
         else _interpolate = false;
 
-        if (Input.GetKeyDown(KeyCode.Space)) _sculptDirection = (SculptDirection)((((int)_sculptDirection) + 1) % 2);
+        if (Input.GetKeyDown(KeyCode.Space)) { _sculptDirection = (SculptDirection)((((int)_sculptDirection) + 1) % 2); print("blbl"); }
 
         _sculptRadius -= Input.mouseScrollDelta.y * (_sculptRadius * _mouseWheelSensitivity);
     }
