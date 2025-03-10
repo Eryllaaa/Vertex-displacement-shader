@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public struct SculptHit2
+public struct SculptHit
 {
     public Vector3 position;
     public Vector3 previousPos;
@@ -8,7 +8,7 @@ public struct SculptHit2
     public float radius;
     public float speed;
 
-    public SculptHit2(Vector3 pPosition, Vector3 pPreviousPos, SculptDirection pDirection, float pRadius, float pSpeed)
+    public SculptHit(Vector3 pPosition, Vector3 pPreviousPos, SculptDirection pDirection, float pRadius, float pSpeed)
     {
         position = pPosition;
         previousPos = pPreviousPos;
@@ -31,7 +31,7 @@ public struct SculptHit2
         speed = pSpeed;
     }
 
-    public SculptHit2(SculptHit2 pOther)
+    public SculptHit(SculptHit pOther)
     {
         position = pOther.position;
         previousPos = pOther.previousPos;
@@ -40,5 +40,5 @@ public struct SculptHit2
         speed = pOther.speed;
     }
 
-    public static SculptHit2 none = new SculptHit2(Vector3.zero, Vector3.zero, SculptDirection.none, 0f, 0f);
+    public static SculptHit none = new SculptHit(Vector3.zero, Vector3.zero, SculptDirection.none, 0f, 0f);
 }

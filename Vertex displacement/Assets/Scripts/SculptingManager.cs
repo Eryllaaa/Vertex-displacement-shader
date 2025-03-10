@@ -1,13 +1,12 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class SculptingManager2 : MonoBehaviour
+public class SculptingManager : MonoBehaviour
 {
     #region Singleton
-    private static SculptingManager2 _instance;
-    public static SculptingManager2 Instance { get { return _instance; } }
+    private static SculptingManager _instance;
+    public static SculptingManager Instance { get { return _instance; } }
     private void SingletonCheck()
     {
         if (_instance != null)
@@ -38,7 +37,7 @@ public class SculptingManager2 : MonoBehaviour
     private Camera _camera;
     private const float _MAX_RAYCAST_DISTANCE = 1000f;
     private Vector3 _previousPos = Vector3.zero;
-    private SculptHit2 _latestHit = SculptHit2.none;
+    private SculptHit _latestHit = SculptHit.none;
     private bool _interpolate = false;
 
     private void Start()
@@ -79,15 +78,15 @@ public class SculptingManager2 : MonoBehaviour
             print("no collider hit");
             return;
         }
-        else if (pHit.transform.GetComponent<SculptableObject2>() == null)
+        else if (pHit.transform.GetComponent<SculptableObject>() == null)
         {
             print("collider hit has no SculptableObject component");
             return;
         }
-        pHit.transform.GetComponent<SculptableObject2>().OnHit(RaycastToSculptHit(pHit, pDir));
+        pHit.transform.GetComponent<SculptableObject>().OnHit(RaycastToSculptHit(pHit, pDir));
     }
 
-    private SculptHit2 RaycastToSculptHit(RaycastHit pHit,SculptDirection pDir)
+    private SculptHit RaycastToSculptHit(RaycastHit pHit,SculptDirection pDir)
     {
         if (_interpolate)
         {
@@ -97,7 +96,7 @@ public class SculptingManager2 : MonoBehaviour
         {
             _previousPos = pHit.point;
         }
-        _latestHit = new SculptHit2(pHit.point, _previousPos, pDir, _sculptRadius, _sculptSpeed);
+        _latestHit = new SculptHit(pHit.point, _previousPos, pDir, _sculptRadius, _sculptSpeed);
         return _latestHit;
     }
 

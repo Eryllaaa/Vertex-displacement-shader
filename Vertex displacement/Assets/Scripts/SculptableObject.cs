@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Mesh), typeof(MeshFilter), typeof(MeshCollider))]
-public class SculptableObject2 : MonoBehaviour
+public class SculptableObject : MonoBehaviour
 {
     [SerializeField, Range(0.1f, 10f)] private float _maxDisplacement = 1f;
 
@@ -149,7 +149,7 @@ public class SculptableObject2 : MonoBehaviour
     }
     #endregion
 
-    private SculptHit2 _currentHit = SculptHit2.none;
+    private SculptHit _currentHit = SculptHit.none;
     private Vector3 _previousHitPos = Vector3.zero;
 
     private IEnumerator SlowMeshUpdate()
@@ -191,7 +191,7 @@ public class SculptableObject2 : MonoBehaviour
         }
     }
 
-    private void SendSculptHit(SculptHit2 lHit)
+    private void SendSculptHit(SculptHit lHit)
     {
         if (_computeShader == null) { print("NO COMPUTE SHADER INSTANCE"); return; }
 
@@ -204,7 +204,7 @@ public class SculptableObject2 : MonoBehaviour
 
     private void ClearSculptHit()
     {
-        SculptHit2 lHit = SculptHit2.none;
+        SculptHit lHit = SculptHit.none;
         _computeShader.SetVector(_CURRENT_SCULPT_POS, lHit.position);
         _computeShader.SetInt(_CURRENT_SCULPT_DIR, lHit.direction);
         _computeShader.SetFloat(_CURRENT_SCULPT_RADIUS, lHit.radius);
@@ -226,7 +226,7 @@ public class SculptableObject2 : MonoBehaviour
         if (_computeShader != null) _computeShader.SetFloat(_MAX_DISPLACEMENT, _maxDisplacement);
     }
 
-    public void OnHit(SculptHit2 pHit)
+    public void OnHit(SculptHit pHit)
     {
         _currentHit = pHit;
         _previousHitPos = transform.InverseTransformPoint(_currentHit.previousPos);
