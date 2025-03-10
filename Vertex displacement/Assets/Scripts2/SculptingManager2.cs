@@ -53,14 +53,7 @@ public class SculptingManager2 : MonoBehaviour
 
     private void InputCheck()
     {
-        if(GetComponent<InputReader>() != null)
-        {
-            _inputReader = GetComponent<InputReader>();
-        }
-        else
-        {
-            _inputReader = new InputReader();
-        }
+        _inputReader = InputReader.Instance;
     }
 
     private void BindInputs()

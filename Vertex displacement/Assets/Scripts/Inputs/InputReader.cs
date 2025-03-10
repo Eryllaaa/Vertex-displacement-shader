@@ -41,7 +41,7 @@ public class InputReader : MonoBehaviour
         }
         else
         {
-            Destroy(gameObject);
+            Destroy(this);
         }
 
         sculptUpAction = _InputActions.FindAction(SCULPT_UP);
