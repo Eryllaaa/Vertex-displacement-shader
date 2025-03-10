@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class SculptingManager2 : MonoBehaviour
 {
@@ -23,12 +24,15 @@ public class SculptingManager2 : MonoBehaviour
 
     [Header("Sculpting")]
     [SerializeField, Range(0.1f, MAX_SCULPT_RADIUS)] private float _sculptRadius = 0.2f;
-    [SerializeField] private SculptDirection _sculptDirection;
     [SerializeField, Range(5f, 20f)] private float _sculptSpeed = 1f;
 
     [Header("Controls")]
     [SerializeField, Range(0.1f, 1f)] private float _mouseWheelSensitivity = 0.1f;
+
+    public List<SculptableObject2> sculptableObjects = new List<SculptableObject2>();
     #endregion
+
+    InputReader _inputReader;
 
     private const float MIN_SCULPT_RADIUS = 0.1f;
     private const float MAX_SCULPT_RADIUS = 10f;
@@ -43,6 +47,25 @@ public class SculptingManager2 : MonoBehaviour
     {
         SingletonCheck();
         _camera = Camera.main;
+        InputCheck();
+        BindInputs();
+    }
+
+    private void InputCheck()
+    {
+        if(GetComponent<InputReader>() != null)
+        {
+            _inputReader = GetComponent<InputReader>();
+        }
+        else
+        {
+            _inputReader = new InputReader();
+        }
+    }
+
+    private void BindInputs()
+    {
+        _inputReader.strenghtVariableAction.performed += BindScroll;
     }
 
     private void Update()
@@ -53,11 +76,12 @@ public class SculptingManager2 : MonoBehaviour
     private RaycastHit RaycastToWorld()
     {
         RaycastHit lHit;
+        //Physics.SphereCastAll(_camera.ScreenPointToRay(Input.mousePosition), _sculptRadius, _MAX_RAYCAST_DISTANCE, sculptableLayer);
         Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out lHit, _MAX_RAYCAST_DISTANCE, sculptableLayer);
         return lHit;
     }
 
-    private void DetectionHandling(RaycastHit pHit)
+    private void DetectionHandling(RaycastHit pHit, SculptDirection pDir)
     {
         if (pHit.collider == null)
         {
@@ -69,10 +93,13 @@ public class SculptingManager2 : MonoBehaviour
             print("collider hit has no SculptableObject component");
             return;
         }
-        pHit.transform.GetComponent<SculptableObject2>().OnHit(RaycastToSculptHit(pHit));
+        foreach (SculptableObject2 obj in sculptableObjects)
+        {
+            obj.OnHit(RaycastToSculptHit(pHit, pDir));
+        }
     }
 
-    private SculptHit2 RaycastToSculptHit(RaycastHit pHit)
+    private SculptHit2 RaycastToSculptHit(RaycastHit pHit,SculptDirection pDir)
     {
         if (_interpolate)
         {
@@ -82,21 +109,28 @@ public class SculptingManager2 : MonoBehaviour
         {
             _previousPos = pHit.point;
         }
-        _latestHit = new SculptHit2(pHit.point, _previousPos, _sculptDirection, _sculptRadius, _sculptSpeed);
+        _latestHit = new SculptHit2(pHit.point, _previousPos, pDir, _sculptRadius, _sculptSpeed);
         return _latestHit;
     }
 
     private void InputsHandling()
     {
-        if (Input.GetMouseButton(0))
+        if (_inputReader.isScultpingUp)
         {
-            DetectionHandling(RaycastToWorld());
+            DetectionHandling(RaycastToWorld(),SculptDirection.up);
+            _interpolate = true;
+        }
+        else if(_inputReader.isScultpingDown)
+        {
+            DetectionHandling(RaycastToWorld(), SculptDirection.down);
             _interpolate = true;
         }
         else _interpolate = false;
+    }
 
-        if (Input.GetKeyDown(KeyCode.Space)) _sculptDirection = (SculptDirection)((((int)_sculptDirection) + 1) % 2);
-
-        _sculptRadius -= Input.mouseScrollDelta.y * (_sculptRadius * _mouseWheelSensitivity);
+    private void BindScroll(InputAction.CallbackContext pContext)
+    {
+        _sculptRadius -= pContext.ReadValue<Vector2>().y * _mouseWheelSensitivity * Time.deltaTime;
+        _sculptRadius = Mathf.Clamp(_sculptRadius, MIN_SCULPT_RADIUS, MAX_SCULPT_RADIUS);
     }
 }

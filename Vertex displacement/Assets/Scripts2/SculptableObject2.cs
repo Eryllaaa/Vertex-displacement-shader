@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Mesh), typeof(MeshFilter), typeof(MeshCollider))]
 public class SculptableObject2 : MonoBehaviour
@@ -72,6 +73,17 @@ public class SculptableObject2 : MonoBehaviour
         StartComputeShader();
         StartCoroutine(ColliderUpdate());
         StartCoroutine(SlowMeshUpdate());
+        BindToReset();
+    }
+
+    private void BindToReset()
+    {
+        InputReader.Instance.DebugResetTerrainAction.started += CallResetDisplacement;
+    }
+
+    private void CallResetDisplacement(InputAction.CallbackContext pContext)
+    {
+        ResetDisplacement();
     }
 
     private void StartComponents()
@@ -139,11 +151,6 @@ public class SculptableObject2 : MonoBehaviour
 
     private SculptHit2 _currentHit = SculptHit2.none;
     private Vector3 _previousHitPos = Vector3.zero;
-
-    private void Update()
-    {
-        if (Input.GetMouseButton(1)) ResetDisplacement();
-    }
 
     private IEnumerator SlowMeshUpdate()
     {
@@ -233,6 +240,12 @@ public class SculptableObject2 : MonoBehaviour
         _startNormalsBuffer.Release();
         _verticesStartPosBuffer.Release();
         _targetDisplacementsBuffer.Release();
+        UnbindToReset();
+    }
+
+    private void UnbindToReset()
+    {
+        InputReader.Instance.DebugResetTerrainAction.started -= CallResetDisplacement;
     }
     #endregion
 }
