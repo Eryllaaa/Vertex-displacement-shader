@@ -896,6 +896,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1434493612}
   - component: {fileID: 1434493613}
+  - component: {fileID: 1434493614}
   m_Layer: 0
   m_Name: SculptingManager
   m_TagString: Untagged
@@ -941,6 +942,89 @@ MonoBehaviour:
   - {fileID: 1213505592}
   - {fileID: 1428951852}
   - {fileID: 883389892}
+--- !u!114 &1434493614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1434493610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a898a21c1101fe743a10c0a0f4ace72c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _InputActions: {fileID: -944628639613478452, guid: a407f48db8194ce4fb97b50dc192e83d, type: 3}
+  sculptUpAction:
+    m_Name: Sculpt Up
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 5da82cf3-650b-49dc-8955-80f8659f3b0a
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  sculptDownAction:
+    m_Name: Sculpt Down
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 56d650a4-fc72-4340-8627-9711e53dcda3
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  resetLevelAction:
+    m_Name: Reset Level
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 2ca14c81-2b6c-4c02-879e-e2f8ae07bef4
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  strenghtVariableAction:
+    m_Name: Strenght Variable
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: fb37462b-4405-4ebd-8218-61be904dbacc
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  strenghtModifierAction:
+    m_Name: Strenght Modifier
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: d18ccde5-2ab6-43da-bcb5-d8360fbf49f5
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  DebugResetBallAction:
+    m_Name: Debug Reset Ball
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 7bbe3fe0-abfb-4834-a242-4c30c19ed382
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  DebugResetTerrainAction:
+    m_Name: Debug Reset Terrain
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: b556d061-b972-400f-ba5e-94042c948bb8
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  isScultpingUp: 0
+  isScultpingDown: 0
+  isResettingLevel: 0
+  scrollDelta: 0
+  isModifier: 0
+  isResettingBall: 0
+  isResettingTerrain: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

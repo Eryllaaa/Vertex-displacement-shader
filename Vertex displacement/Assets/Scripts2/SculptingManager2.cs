@@ -23,7 +23,6 @@ public class SculptingManager2 : MonoBehaviour
 
     [Header("Sculpting")]
     [SerializeField, Range(0.1f, MAX_SCULPT_RADIUS)] private float _sculptRadius = 0.2f;
-    [SerializeField] private SculptDirection _sculptDirection;
     [SerializeField, Range(5f, 20f)] private float _sculptSpeed = 1f;
 
     [Header("Controls")]
@@ -31,6 +30,8 @@ public class SculptingManager2 : MonoBehaviour
 
     public List<SculptableObject2> sculptableObjects = new List<SculptableObject2>();
     #endregion
+
+    [SerializeField] InputReader _inputReader;
 
     private const float MIN_SCULPT_RADIUS = 0.1f;
     private const float MAX_SCULPT_RADIUS = 10f;
@@ -45,6 +46,19 @@ public class SculptingManager2 : MonoBehaviour
     {
         SingletonCheck();
         _camera = Camera.main;
+        InputCheck();
+    }
+
+    private void InputCheck()
+    {
+        if(GetComponent<InputReader>() != null)
+        {
+            _inputReader = GetComponent<InputReader>();
+        }
+        else
+        {
+            _inputReader = new InputReader();
+        }
     }
 
     private void Update()
@@ -60,7 +74,7 @@ public class SculptingManager2 : MonoBehaviour
         return lHit;
     }
 
-    private void DetectionHandling(RaycastHit pHit)
+    private void DetectionHandling(RaycastHit pHit, SculptDirection pDir)
     {
         if (pHit.collider == null)
         {
@@ -74,11 +88,11 @@ public class SculptingManager2 : MonoBehaviour
         }
         foreach (SculptableObject2 obj in sculptableObjects)
         {
-            obj.OnHit(RaycastToSculptHit(pHit));
+            obj.OnHit(RaycastToSculptHit(pHit, pDir));
         }
     }
 
-    private SculptHit2 RaycastToSculptHit(RaycastHit pHit)
+    private SculptHit2 RaycastToSculptHit(RaycastHit pHit,SculptDirection pDir)
     {
         if (_interpolate)
         {
@@ -88,20 +102,25 @@ public class SculptingManager2 : MonoBehaviour
         {
             _previousPos = pHit.point;
         }
-        _latestHit = new SculptHit2(pHit.point, _previousPos, _sculptDirection, _sculptRadius, _sculptSpeed);
+        _latestHit = new SculptHit2(pHit.point, _previousPos, pDir, _sculptRadius, _sculptSpeed);
         return _latestHit;
     }
 
     private void InputsHandling()
     {
-        if (Input.GetMouseButton(0))
+        if (_inputReader.isScultpingUp)
         {
-            DetectionHandling(RaycastToWorld());
+            DetectionHandling(RaycastToWorld(),SculptDirection.up);
             _interpolate = true;
         }
         else _interpolate = false;
 
-        if (Input.GetKeyDown(KeyCode.Space)) _sculptDirection = (SculptDirection)((((int)_sculptDirection) + 1) % 2);
+        if (_inputReader.isScultpingDown)
+        {
+            DetectionHandling(RaycastToWorld(), SculptDirection.down);
+            _interpolate = true;
+        }
+        else _interpolate = false;
 
         _sculptRadius -= Input.mouseScrollDelta.y * (_sculptRadius * _mouseWheelSensitivity);
     }

@@ -1,0 +1,154 @@
+{
+    "name": "InputMap",
+    "maps": [
+        {
+            "name": "ActionMap",
+            "id": "1d5cb64c-641a-46b5-b169-a71d69c5c04c",
+            "actions": [
+                {
+                    "name": "SculptUp",
+                    "type": "Button",
+                    "id": "185dfb63-7075-49f0-bdbc-01fdccad68fe",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "StrenghtVariable",
+                    "type": "Value",
+                    "id": "23826ded-a6c4-492b-a6a4-43811ec6dcc7",
+                    "expectedControlType": "Delta",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "SculptDown",
+                    "type": "Button",
+                    "id": "c2cabe70-6543-4593-bf28-57da1c6e0dd9",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "StrenghtModifier",
+                    "type": "Button",
+                    "id": "b6077ddc-ac89-42c7-bc25-5a8cf572d71b",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ResetLevel",
+                    "type": "Button",
+                    "id": "e33a67e4-cb3b-4936-b076-7587d5f463ac",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "DebugResetTerrain",
+                    "type": "Button",
+                    "id": "47645e94-e92f-456f-80f2-0ecbdf6b0a4f",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "DebugResetBall",
+                    "type": "Button",
+                    "id": "322a1917-4cf3-4163-90bb-17e5ecbc1af0",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "7adb3028-4df7-4668-b418-4e90faa88570",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SculptUp",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c5637fa2-662c-4856-90e9-95a39e39fd7e",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SculptDown",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "caec8468-8176-422b-93bd-5cb082e47d4c",
+                    "path": "<Keyboard>/shift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "StrenghtModifier",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "768b50aa-9694-46b6-8d9b-3f568d5947ed",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ResetLevel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a29622e3-20a5-434a-b8d3-ce77f20a0a0f",
+                    "path": "<Mouse>/scroll",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "StrenghtVariable",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1302ce90-b3f4-4d28-ab73-d799195a7c47",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "DebugResetTerrain",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4acaa943-2909-48f8-bd54-156c52bf3a7b",
+                    "path": "<Keyboard>/ctrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "DebugResetBall",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

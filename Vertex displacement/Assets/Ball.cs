@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Ball : MonoBehaviour
 {
@@ -6,14 +7,12 @@ public class Ball : MonoBehaviour
 
     private void Start()
     {
-        _startPos = transform.position;    
+        _startPos = transform.position;
+        InputReader.Instance.DebugResetBallAction.started += BindToReset;
     }
 
-    private void Update()
+    private void BindToReset(InputAction.CallbackContext pContext)
     {
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            transform.position = _startPos;
-        }
+        transform.position = _startPos;
     }
 }
