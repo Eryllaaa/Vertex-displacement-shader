@@ -28,8 +28,6 @@ public class SculptingManager2 : MonoBehaviour
 
     [Header("Controls")]
     [SerializeField, Range(0.1f, 1f)] private float _mouseWheelSensitivity = 0.1f;
-
-    public List<SculptableObject2> sculptableObjects = new List<SculptableObject2>();
     #endregion
 
     private const float MIN_SCULPT_RADIUS = 0.1f;
@@ -71,10 +69,7 @@ public class SculptingManager2 : MonoBehaviour
             print("collider hit has no SculptableObject component");
             return;
         }
-        foreach (SculptableObject2 obj in sculptableObjects)
-        {
-            obj.OnHit(RaycastToSculptHit(pHit));
-        }
+        pHit.transform.GetComponent<SculptableObject2>().OnHit(RaycastToSculptHit(pHit));
     }
 
     private SculptHit2 RaycastToSculptHit(RaycastHit pHit)
