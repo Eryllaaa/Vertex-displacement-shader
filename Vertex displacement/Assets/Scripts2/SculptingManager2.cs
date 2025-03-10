@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class SculptingManager2 : MonoBehaviour
 {
@@ -31,7 +32,7 @@ public class SculptingManager2 : MonoBehaviour
     public List<SculptableObject2> sculptableObjects = new List<SculptableObject2>();
     #endregion
 
-    [SerializeField] InputReader _inputReader;
+    InputReader _inputReader;
 
     private const float MIN_SCULPT_RADIUS = 0.1f;
     private const float MAX_SCULPT_RADIUS = 10f;
@@ -47,6 +48,7 @@ public class SculptingManager2 : MonoBehaviour
         SingletonCheck();
         _camera = Camera.main;
         InputCheck();
+        BindInputs();
     }
 
     private void InputCheck()
@@ -59,6 +61,11 @@ public class SculptingManager2 : MonoBehaviour
         {
             _inputReader = new InputReader();
         }
+    }
+
+    private void BindInputs()
+    {
+        _inputReader.strenghtVariableAction.performed += BindScroll;
     }
 
     private void Update()
@@ -113,15 +120,17 @@ public class SculptingManager2 : MonoBehaviour
             DetectionHandling(RaycastToWorld(),SculptDirection.up);
             _interpolate = true;
         }
-        else _interpolate = false;
-
-        if (_inputReader.isScultpingDown)
+        else if(_inputReader.isScultpingDown)
         {
             DetectionHandling(RaycastToWorld(), SculptDirection.down);
             _interpolate = true;
         }
         else _interpolate = false;
+    }
 
-        _sculptRadius -= Input.mouseScrollDelta.y * (_sculptRadius * _mouseWheelSensitivity);
+    private void BindScroll(InputAction.CallbackContext pContext)
+    {
+        _sculptRadius -= pContext.ReadValue<Vector2>().y * _mouseWheelSensitivity * Time.deltaTime;
+        _sculptRadius = Mathf.Clamp(_sculptRadius, MIN_SCULPT_RADIUS, MAX_SCULPT_RADIUS);
     }
 }

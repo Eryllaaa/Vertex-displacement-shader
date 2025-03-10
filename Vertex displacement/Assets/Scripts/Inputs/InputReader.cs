@@ -7,8 +7,6 @@ public class InputReader : MonoBehaviour
 
     public static InputReader Instance { get; private set; }
 
-    private const string ACTION_MAP_NAME = "ActionMap";
-
     private const string SCULPT_UP = "SculptUp";
     private const string SCULPT_DOWN = "SculptDown";
     private const string RESET_LEVEL = "ResetLevel";
@@ -19,12 +17,12 @@ public class InputReader : MonoBehaviour
     private const string DEBUG_RESET_TERRAIN = "DebugResetTerrain";
 
     [HideInInspector] public InputAction sculptUpAction;
-    [HideInInspector]public InputAction sculptDownAction;
-    [HideInInspector]public InputAction resetLevelAction;
-    [HideInInspector]public InputAction strenghtVariableAction;
-    [HideInInspector]public InputAction strenghtModifierAction;
+    [HideInInspector] public InputAction sculptDownAction;
+    [HideInInspector] public InputAction resetLevelAction;
+    [HideInInspector] public InputAction strenghtVariableAction;
+    [HideInInspector] public InputAction strenghtModifierAction;
     //Debug
-    [HideInInspector]public InputAction DebugResetBallAction;
+    [HideInInspector] public InputAction DebugResetBallAction;
     [HideInInspector] public InputAction DebugResetTerrainAction;
 
     [HideInInspector] public bool isScultpingUp;
@@ -68,7 +66,7 @@ public class InputReader : MonoBehaviour
         resetLevelAction.performed += context => isResettingLevel = true;
         resetLevelAction.canceled += context => isResettingLevel = false;
 
-        strenghtVariableAction.performed += context => scrollDelta = context.ReadValue<float>();
+        strenghtVariableAction.performed += context => scrollDelta = context.ReadValue<Vector2>().y;
         strenghtVariableAction.canceled += context => scrollDelta = 0;
 
         strenghtModifierAction.performed += context => isModifier = true;
