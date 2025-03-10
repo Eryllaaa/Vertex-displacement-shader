@@ -55,7 +55,6 @@ public class SculptingManager2 : MonoBehaviour
     private RaycastHit RaycastToWorld()
     {
         RaycastHit lHit;
-        //Physics.SphereCastAll(_camera.ScreenPointToRay(Input.mousePosition), _sculptRadius, _MAX_RAYCAST_DISTANCE, sculptableLayer);
         Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out lHit, _MAX_RAYCAST_DISTANCE, sculptableLayer);
         return lHit;
     }
