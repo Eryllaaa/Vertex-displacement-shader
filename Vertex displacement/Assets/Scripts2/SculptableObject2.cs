@@ -182,10 +182,12 @@ public class SculptableObject2 : MonoBehaviour
 
     private IEnumerator ColliderUpdate()
     {
+        const float FIXED_STEP = 0.05f;
         while (true)
         {
+            _physicsCollider.sharedMesh = null;
             _physicsCollider.sharedMesh = _mesh;
-            yield return new WaitForSeconds(0.01f);
+            yield return new WaitForSeconds(FIXED_STEP);
         }
     }
 
