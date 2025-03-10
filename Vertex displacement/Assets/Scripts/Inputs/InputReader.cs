@@ -79,11 +79,6 @@ public class InputReader : MonoBehaviour
         DebugResetTerrainAction.canceled += context => isResettingTerrain = false;
     }
 
-    private void Update()
-    {
-        print(isScultpingUp);
-    }
-
     private void OnEnable()
     {
         sculptUpAction.Enable();
