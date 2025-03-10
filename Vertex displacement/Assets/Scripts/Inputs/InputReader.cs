@@ -3,15 +3,15 @@ using UnityEngine.InputSystem;
 
 public class InputReader : MonoBehaviour
 {
-    [SerializeField]InputActionAsset _InputActions;
+    [SerializeField] private InputActionAsset _InputActions;
 
     public static InputReader Instance { get; private set; }
 
     private const string SCULPT_UP = "SculptUp";
     private const string SCULPT_DOWN = "SculptDown";
     private const string RESET_LEVEL = "ResetLevel";
-    private const string STRENGHT_VARIABLE = "StrenghtVariable";
-    private const string STRENGHT_MODIFIER = "StrenghtModifier";
+    private const string STRENGTH_VARIABLE = "StrenghtVariable";
+    private const string STRENGTH_MODIFIER = "StrenghtModifier";
     //Debug
     private const string DEBUG_RESET_BALL = "DebugResetBall";
     private const string DEBUG_RESET_TERRAIN = "DebugResetTerrain";
@@ -19,8 +19,8 @@ public class InputReader : MonoBehaviour
     [HideInInspector] public InputAction sculptUpAction;
     [HideInInspector] public InputAction sculptDownAction;
     [HideInInspector] public InputAction resetLevelAction;
-    [HideInInspector] public InputAction strenghtVariableAction;
-    [HideInInspector] public InputAction strenghtModifierAction;
+    [HideInInspector] public InputAction strengthVariableAction;
+    [HideInInspector] public InputAction strengthModifierAction;
     //Debug
     [HideInInspector] public InputAction DebugResetBallAction;
     [HideInInspector] public InputAction DebugResetTerrainAction;
@@ -47,8 +47,8 @@ public class InputReader : MonoBehaviour
         sculptUpAction = _InputActions.FindAction(SCULPT_UP);
         sculptDownAction = _InputActions.FindAction(SCULPT_DOWN);
         resetLevelAction = _InputActions.FindAction(RESET_LEVEL);
-        strenghtVariableAction = _InputActions.FindAction(STRENGHT_VARIABLE);
-        strenghtModifierAction = _InputActions.FindAction(STRENGHT_MODIFIER);
+        strengthVariableAction = _InputActions.FindAction(STRENGTH_VARIABLE);
+        strengthModifierAction = _InputActions.FindAction(STRENGTH_MODIFIER);
         DebugResetBallAction = _InputActions.FindAction(DEBUG_RESET_BALL);
         DebugResetTerrainAction = _InputActions.FindAction(DEBUG_RESET_TERRAIN);
 
@@ -66,11 +66,11 @@ public class InputReader : MonoBehaviour
         resetLevelAction.performed += context => isResettingLevel = true;
         resetLevelAction.canceled += context => isResettingLevel = false;
 
-        strenghtVariableAction.performed += context => scrollDelta = context.ReadValue<Vector2>().y;
-        strenghtVariableAction.canceled += context => scrollDelta = 0;
+        strengthVariableAction.performed += context => scrollDelta = context.ReadValue<Vector2>().y;
+        strengthVariableAction.canceled += context => scrollDelta = 0;
 
-        strenghtModifierAction.performed += context => isModifier = true;
-        strenghtModifierAction.canceled += context => isModifier = false;
+        strengthModifierAction.performed += context => isModifier = true;
+        strengthModifierAction.canceled += context => isModifier = false;
 
         DebugResetBallAction.performed += context => isResettingBall = true;
         DebugResetBallAction.canceled += context => isResettingBall = false;
@@ -79,13 +79,18 @@ public class InputReader : MonoBehaviour
         DebugResetTerrainAction.canceled += context => isResettingTerrain = false;
     }
 
+    private void Update()
+    {
+        print(isScultpingUp);
+    }
+
     private void OnEnable()
     {
         sculptUpAction.Enable();
         sculptDownAction.Enable();
         resetLevelAction.Enable();
-        strenghtVariableAction.Enable();
-        strenghtModifierAction.Enable();
+        strengthVariableAction.Enable();
+        strengthModifierAction.Enable();
 
         DebugResetBallAction.Enable();
         DebugResetTerrainAction.Enable();
@@ -96,8 +101,8 @@ public class InputReader : MonoBehaviour
         sculptUpAction.Disable();
         sculptDownAction.Disable();
         resetLevelAction.Disable();
-        strenghtVariableAction.Disable();
-        strenghtModifierAction.Disable();
+        strengthVariableAction.Disable();
+        strengthModifierAction.Disable();
 
         DebugResetBallAction.Disable();
         DebugResetTerrainAction.Disable();
