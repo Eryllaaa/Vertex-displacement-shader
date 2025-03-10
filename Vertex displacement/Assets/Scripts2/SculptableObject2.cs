@@ -11,6 +11,7 @@ public class SculptableObject2 : MonoBehaviour
     [SerializeField] private ComputeShader _computeShaderTemplate;
     [SerializeField] private MeshCollider _physicsCollider; // not the raycast collider but the collider used for physics with the ball that is a child of this game object.
 
+    private MeshCollider _clickCollider;
     private Mesh _mesh;
     private MeshFilter _meshFilter;
     #endregion
@@ -70,17 +71,19 @@ public class SculptableObject2 : MonoBehaviour
         StartComponents();
         StartComputeShader();
         StartCoroutine(ColliderUpdate());
+        StartCoroutine(SlowMeshUpdate());
     }
 
     private void StartComponents()
     {
         _meshFilter = GetComponent<MeshFilter>();
-
+        _clickCollider = GetComponent<MeshCollider>();
         Mesh lMesh = Instantiate(_meshFilter.sharedMesh); // Clone the mesh
 
         _mesh = lMesh;
         _meshFilter.mesh = _mesh;
         _physicsCollider.sharedMesh = _mesh;
+        _clickCollider.sharedMesh = _mesh; // make sure the area we can click on is the same shape and size as the object area.
 
         _vertexCount = _mesh.vertexCount;
         _startNormals = _mesh.normals;
@@ -135,22 +138,30 @@ public class SculptableObject2 : MonoBehaviour
     #endregion
 
     private SculptHit2 _currentHit = SculptHit2.none;
+    private Vector3 _previousHitPos = Vector3.zero;
 
     private void Update()
     {
         if (Input.GetMouseButton(1)) ResetDisplacement();
-        
-        _computeShader.SetFloat(_DELTA_TIME, Time.deltaTime);
-        _computeShader.SetVector(_PREVIOUS_SCULPT_POS, _previousHitPos);
-
-        _computeShader.Dispatch(CSMainKernelId, _groupCount, 1, 1);
-
-        ClearSculptHit();
-
-        ApplyDisplacementToMesh();
     }
 
-    private float diff = 0;
+    private IEnumerator SlowMeshUpdate()
+    {
+        const float FIXED_STEP = 0.02f;
+        while (true)
+        {
+            _computeShader.SetFloat(_DELTA_TIME, FIXED_STEP);
+            _computeShader.SetVector(_PREVIOUS_SCULPT_POS, _previousHitPos);
+
+            _computeShader.Dispatch(CSMainKernelId, _groupCount, 1, 1);
+
+            ClearSculptHit();
+
+            ApplyDisplacementToMesh();
+            yield return new WaitForSeconds(FIXED_STEP);
+        }
+    }
+
     private void ApplyDisplacementToMesh()
     {
         Vector3[] lVertices = new Vector3[_vertexCount];
@@ -167,21 +178,18 @@ public class SculptableObject2 : MonoBehaviour
         while (true)
         {
             _physicsCollider.sharedMesh = _mesh;
-            yield return new WaitForSeconds(0.005f);
+            yield return new WaitForSeconds(0.01f);
         }
     }
 
     private void SendSculptHit(SculptHit2 lHit)
     {
-        if (_computeShader == null)
-        {
-            print("NO COMPUTE SHADER INSTANCE");
-            return;
-        }
+        if (_computeShader == null) { print("NO COMPUTE SHADER INSTANCE"); return; }
+
         _computeShader.SetVector(_CURRENT_SCULPT_POS, transform.InverseTransformPoint(lHit.position));
+        //print(name + ": " + transform.InverseTransformPoint(lHit.position));
         _computeShader.SetInt(_CURRENT_SCULPT_DIR, lHit.direction);
-        // scaled radius
-        _computeShader.SetFloat(_CURRENT_SCULPT_RADIUS, lHit.radius / transform.localScale.magnitude);
+        _computeShader.SetFloat(_CURRENT_SCULPT_RADIUS, lHit.radius / transform.localScale.magnitude); // scaled radius
         _computeShader.SetFloat(_SCULPT_SPEED, lHit.speed);
     }
 
@@ -209,7 +217,6 @@ public class SculptableObject2 : MonoBehaviour
         if (_computeShader != null) _computeShader.SetFloat(_MAX_DISPLACEMENT, _maxDisplacement);
     }
 
-    private Vector3 _previousHitPos = Vector3.zero;
     public void OnHit(SculptHit2 pHit)
     {
         _currentHit = pHit;

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SculptingManager2 : MonoBehaviour
@@ -27,6 +28,8 @@ public class SculptingManager2 : MonoBehaviour
 
     [Header("Controls")]
     [SerializeField, Range(0.1f, 1f)] private float _mouseWheelSensitivity = 0.1f;
+
+    public List<SculptableObject2> sculptableObjects = new List<SculptableObject2>();
     #endregion
 
     private const float MIN_SCULPT_RADIUS = 0.1f;
@@ -34,7 +37,7 @@ public class SculptingManager2 : MonoBehaviour
 
     private Camera _camera;
     private const float _MAX_RAYCAST_DISTANCE = 1000f;
-    private Vector3? _previousPos = Vector3.zero;
+    private Vector3 _previousPos = Vector3.zero;
     private SculptHit2 _latestHit = SculptHit2.none;
     private bool _interpolate = false;
 
@@ -44,9 +47,6 @@ public class SculptingManager2 : MonoBehaviour
         _camera = Camera.main;
     }
 
-    int index = 0;
-    Color[] colors = new Color[3] { Color.red, Color.blue, Color.green };
-
     private void Update()
     {
         InputsHandling();
@@ -55,6 +55,7 @@ public class SculptingManager2 : MonoBehaviour
     private RaycastHit RaycastToWorld()
     {
         RaycastHit lHit;
+        //Physics.SphereCastAll(_camera.ScreenPointToRay(Input.mousePosition), _sculptRadius, _MAX_RAYCAST_DISTANCE, sculptableLayer);
         Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out lHit, _MAX_RAYCAST_DISTANCE, sculptableLayer);
         return lHit;
     }
@@ -71,7 +72,10 @@ public class SculptingManager2 : MonoBehaviour
             print("collider hit has no SculptableObject component");
             return;
         }
-        pHit.transform.GetComponent<SculptableObject2>().OnHit(RaycastToSculptHit(pHit));
+        foreach (SculptableObject2 obj in sculptableObjects)
+        {
+            obj.OnHit(RaycastToSculptHit(pHit));
+        }
     }
 
     private SculptHit2 RaycastToSculptHit(RaycastHit pHit)
@@ -84,7 +88,7 @@ public class SculptingManager2 : MonoBehaviour
         {
             _previousPos = pHit.point;
         }
-        _latestHit = new SculptHit2(pHit.point, _previousPos.Value, _sculptDirection, _sculptRadius, _sculptSpeed);
+        _latestHit = new SculptHit2(pHit.point, _previousPos, _sculptDirection, _sculptRadius, _sculptSpeed);
         return _latestHit;
     }
 
@@ -97,7 +101,7 @@ public class SculptingManager2 : MonoBehaviour
         }
         else _interpolate = false;
 
-        if (Input.GetKeyDown(KeyCode.Space)) { _sculptDirection = (SculptDirection)((((int)_sculptDirection) + 1) % 2); print("blbl"); }
+        if (Input.GetKeyDown(KeyCode.Space)) _sculptDirection = (SculptDirection)((((int)_sculptDirection) + 1) % 2);
 
         _sculptRadius -= Input.mouseScrollDelta.y * (_sculptRadius * _mouseWheelSensitivity);
     }

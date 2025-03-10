@@ -48,7 +48,9 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     
     float3 interpolatedPos = ProjectOnSegment(currentPos, prevPos, verticesStartPos[index]);
     interpolatedPos = clamp(interpolatedPos, clampMin, clampMax);
-
+    
+    interpolatedPos = currentPos;
+    
     float len = length(interpolatedPos - verticesStartPos[index]);
     if (len < currentRadius)
     {
