@@ -23,17 +23,17 @@ public class SculptingManager2 : MonoBehaviour
     [SerializeField] public LayerMask sculptableLayer;
 
     [Header("Sculpting")]
-    [SerializeField, Range(0.1f, MAX_SCULPT_RADIUS)] private float _sculptRadius = 0.2f;
     [SerializeField, Range(5f, 20f)] private float _sculptSpeed = 1f;
+
+    [SerializeField] private float _minSculptRadius = 0.1f;
+    [SerializeField] private float _maxSculptRadius = 10f;
 
     [Header("Controls")]
     [SerializeField, Range(0.1f, 1f)] private float _mouseWheelSensitivity = 0.1f;
     #endregion
 
     InputReader _inputReader;
-
-    private const float MIN_SCULPT_RADIUS = 0.1f;
-    private const float MAX_SCULPT_RADIUS = 10f;
+    private float _sculptRadius = 0.2f;
 
     private Camera _camera;
     private const float _MAX_RAYCAST_DISTANCE = 1000f;
@@ -119,6 +119,6 @@ public class SculptingManager2 : MonoBehaviour
     private void BindScroll(InputAction.CallbackContext pContext)
     {
         _sculptRadius -= pContext.ReadValue<Vector2>().y * _mouseWheelSensitivity * Time.deltaTime;
-        _sculptRadius = Mathf.Clamp(_sculptRadius, MIN_SCULPT_RADIUS, MAX_SCULPT_RADIUS);
+        _sculptRadius = Mathf.Clamp(_sculptRadius, _minSculptRadius, _maxSculptRadius);
     }
 }
