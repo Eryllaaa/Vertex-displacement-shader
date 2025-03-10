@@ -58,7 +58,7 @@ public class SculptingManager2 : MonoBehaviour
 
     private void BindInputs()
     {
-        _inputReader.strenghtVariableAction.performed += BindScroll;
+        _inputReader.strengthVariableAction.performed += BindScroll;
     }
 
     private void Update()
