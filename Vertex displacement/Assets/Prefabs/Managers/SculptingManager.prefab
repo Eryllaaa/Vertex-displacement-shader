@@ -44,9 +44,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bce963336c27127498f69e4a43eac92e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sculptableLayer:
-    serializedVersion: 2
+  sculptableLayers:
+  - serializedVersion: 2
     m_Bits: 8
+  - serializedVersion: 2
+    m_Bits: 64
   _sculptSpeed: 10
   _minSculptRadius: 1
   _maxSculptRadius: 10
