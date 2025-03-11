@@ -17,6 +17,11 @@ public class Ball : MonoBehaviour
 
     private void BindToReset(InputAction.CallbackContext pContext)
     {
+        RestartBall();
+    }
+
+    public void RestartBall()
+    {
         _rb.Move(_startPos, Quaternion.identity);
         _rb.velocity = Vector3.zero;
         _rb.angularVelocity = Vector3.zero;
