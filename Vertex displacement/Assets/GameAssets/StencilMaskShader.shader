@@ -6,7 +6,7 @@ Shader "Custom/StencilMaskShader"
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" "RenderPipeline" = "UniversalPipeline" "Queue" = "Geometry-1" }
+        Tags { "RenderType"="Opaque" "RenderPipeline" = "UniversalPipeline" "Queue" = "Geometry+1" }
         
         Pass{
    
