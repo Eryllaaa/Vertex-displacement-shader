@@ -3,7 +3,9 @@ guid: e53cb150bf030a24d9bd9a92e219cf93
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - _computeShaderTemplate: {fileID: 7200000, guid: 785e195a1b58ae548b2c63452d3cb561, type: 3}
+  - _physicsCollider: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

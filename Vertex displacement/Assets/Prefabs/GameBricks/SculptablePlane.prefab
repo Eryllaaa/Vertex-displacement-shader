@@ -9,10 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7746722063006192351}
-  - component: {fileID: 4620855410054429169}
   - component: {fileID: 590979231754471436}
   - component: {fileID: 1498621300435022059}
   - component: {fileID: 372381406789780684}
+  - component: {fileID: 8134419556154553462}
   m_Layer: 3
   m_Name: SculptablePlane
   m_TagString: Untagged
@@ -36,21 +36,6 @@ Transform:
   - {fileID: 9222621338650648507}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
---- !u!114 &4620855410054429169
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2638626185031849726}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e53cb150bf030a24d9bd9a92e219cf93, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _maxDisplacement: 1
-  _computeShaderTemplate: {fileID: 7200000, guid: 785e195a1b58ae548b2c63452d3cb561, type: 3}
-  _physicsCollider: {fileID: 1985165045360837871}
 --- !u!64 &590979231754471436
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -123,6 +108,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2638626185031849726}
   m_Mesh: {fileID: -462981019419857548, guid: 499d7cf84819f1346907d72dbeecaf48, type: 3}
+--- !u!114 &8134419556154553462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2638626185031849726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e53cb150bf030a24d9bd9a92e219cf93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _maxDisplacement: 1
+  _computeShaderTemplate: {fileID: 7200000, guid: 785e195a1b58ae548b2c63452d3cb561, type: 3}
+  _physicsCollider: {fileID: 1985165045360837871}
 --- !u!1 &3157343094803245587
 GameObject:
   m_ObjectHideFlags: 0

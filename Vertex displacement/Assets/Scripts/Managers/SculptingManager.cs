@@ -44,10 +44,12 @@ public class SculptingManager : MonoBehaviour
     private void Start()
     {
         SingletonCheck();
-        _camera = Camera.main;
+        
         InputCheck();
         BindInputs();
         MergeLayers();
+        _camera = Camera.main;
+        _sculptRadius = Mathf.Clamp(_sculptRadius, _minSculptRadius, _maxSculptRadius);
     }
 
     private void MergeLayers()
