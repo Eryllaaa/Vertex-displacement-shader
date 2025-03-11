@@ -4,13 +4,19 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody))]
 public class Ball : MonoBehaviour
 {
+    public static string TAG = "Ball";
+
     private Vector3 _startPos = Vector3.zero;
     private Rigidbody _rb;
 
     private void Start()
     {
-        _rb = GetComponent<Rigidbody>();
+        Init();
+    }
 
+    private void Init()
+    {
+        _rb = GetComponent<Rigidbody>();
         _startPos = transform.position;
         InputReader.Instance.DebugResetBallAction.started += BindToReset;
     }

@@ -7,10 +7,10 @@ public class Goal : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Ball"))
+        if (other.CompareTag(Ball.TAG))
         {
             ballEnteredHole?.Invoke();
-            print("entered");
+            //print("goal entered");
         }
     }
 }

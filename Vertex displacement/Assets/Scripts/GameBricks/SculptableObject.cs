@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -66,7 +67,7 @@ public class SculptableObject : MonoBehaviour
             _computeShader.SetFloat(_MAX_DISPLACEMENT, _maxDisplacement);
         }
     }
-
+    
     private void Start()
     {
         StartComponents();
@@ -165,6 +166,7 @@ public class SculptableObject : MonoBehaviour
             ClearSculptHit();
 
             ApplyDisplacementToMesh();
+
             yield return new WaitForSeconds(FIXED_STEP);
         }
     }
@@ -175,7 +177,7 @@ public class SculptableObject : MonoBehaviour
 
         _vertexBuffer.GetData(lVertices);
         _mesh.vertices = lVertices;
-
+    
         _mesh.RecalculateNormals();
         _mesh.RecalculateBounds();
     }
