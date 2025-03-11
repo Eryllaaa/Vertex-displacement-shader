@@ -80,6 +80,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _ballSpawnPos: {fileID: 385577939038224796}
   _ballTemplate: {fileID: 693988740440839993, guid: d9317720a8d531049af24777d969ce09, type: 3}
+  levelRenderer: {fileID: 3721366045125328475}
+  bgColor: {r: 0.52021563, g: 0, b: 0, a: 1}
 --- !u!1001 &1212666214914049842
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -207,6 +209,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dc05c3809b9889941bcff10d765fdf2b, type: 3}
+--- !u!23 &3721366045125328475 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1498621300435022059, guid: dc05c3809b9889941bcff10d765fdf2b, type: 3}
+  m_PrefabInstance: {fileID: 2839764285711077040}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &5542027054860213359 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7746722063006192351, guid: dc05c3809b9889941bcff10d765fdf2b, type: 3}

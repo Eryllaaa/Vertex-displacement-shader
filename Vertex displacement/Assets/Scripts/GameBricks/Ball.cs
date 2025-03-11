@@ -4,17 +4,23 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody))]
 public class Ball : MonoBehaviour
 {
+    public static string TAG = "Ball";
+
     private Vector3 _startPos = Vector3.zero;
     private Rigidbody _rb;
     private Collider _Collider;
 
     private void Start()
     {
-        _rb = GetComponent<Rigidbody>();
-        _Collider = GetComponent<Collider>();
+        Init();
+    }
 
+    private void Init()
+    {
+        _rb = GetComponent<Rigidbody>();
         _startPos = transform.position;
         InputReader.Instance.DebugResetBallAction.started += BindToReset;
+        _Collider = GetComponent<Collider>();
     }
 
     private void BindToReset(InputAction.CallbackContext pContext)
