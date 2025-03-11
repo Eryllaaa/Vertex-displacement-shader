@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1969760548386885216}
   - component: {fileID: 6229893587932245462}
+  - component: {fileID: 2334862091478965260}
   m_Layer: 0
   m_Name: Level Manager
   m_TagString: Untagged
@@ -47,3 +48,18 @@ MonoBehaviour:
   levels:
   - {fileID: 567461842840385555, guid: 3cd18cc14f42fa24f9000d6cb51203ff, type: 3}
   - {fileID: 5154515958768316707, guid: 33cdeeec4c6903b41986fddcf143a1d0, type: 3}
+  levelPlayingPos: {x: 0, y: 0, z: 0}
+--- !u!114 &2334862091478965260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4767322638497895864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99ae5949f1c4d494a82bb333293b7936, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelChangeDistance: 10
+  levelChangeDuration: 0.1
