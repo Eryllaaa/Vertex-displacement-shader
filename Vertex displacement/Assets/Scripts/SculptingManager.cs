@@ -19,7 +19,8 @@ public class SculptingManager : MonoBehaviour
     #endregion
 
     #region Serialized values
-    [SerializeField] public LayerMask sculptableLayer;
+    [SerializeField] public LayerMask[] sculptableLayers;
+    private LayerMask _SculptableLayer;
 
     [Header("Sculpting")]
     [SerializeField, Range(5f, 20f)] private float _sculptSpeed = 1f;
@@ -46,8 +47,16 @@ public class SculptingManager : MonoBehaviour
         _camera = Camera.main;
         InputCheck();
         BindInputs();
+        MergeLayers();
     }
 
+    private void MergeLayers()
+    {
+        foreach(LayerMask layer in sculptableLayers)
+        {
+            _SculptableLayer |= layer;
+        }
+    }
     private void InputCheck()
     {
         _inputReader = InputReader.Instance;
@@ -67,7 +76,7 @@ public class SculptingManager : MonoBehaviour
     {
         RaycastHit lHit;
         //Physics.SphereCastAll(_camera.ScreenPointToRay(Input.mousePosition), _sculptRadius, _MAX_RAYCAST_DISTANCE, sculptableLayer);
-        Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out lHit, _MAX_RAYCAST_DISTANCE, sculptableLayer);
+        Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out lHit, _MAX_RAYCAST_DISTANCE, _SculptableLayer);
         return lHit;
     }
 
