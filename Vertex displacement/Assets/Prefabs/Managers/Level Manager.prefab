@@ -61,5 +61,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99ae5949f1c4d494a82bb333293b7936, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelChangeDistance: 10
-  levelChangeDuration: 0.1
+  _levelChangeDistance: 30
+  _levelChangeDuration: 2

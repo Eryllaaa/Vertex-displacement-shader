@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 809521572684825348}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalPosition: {x: 0, y: 10, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -79,8 +79,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _ballSpawnPos: {fileID: 385577939038224796}
-  _ballTemplate: {fileID: 693988740440839993, guid: d9317720a8d531049af24777d969ce09, type: 3}
-  levelRenderer: {fileID: 3721366045125328475}
+  _ballTemplate: {fileID: 6433874499919895513, guid: d9317720a8d531049af24777d969ce09, type: 3}
+  _ballRespawnForce: 6
   bgColor: {r: 0.52021563, g: 0, b: 0, a: 1}
 --- !u!1001 &1212666214914049842
 PrefabInstance:
@@ -209,11 +209,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dc05c3809b9889941bcff10d765fdf2b, type: 3}
---- !u!23 &3721366045125328475 stripped
-MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 1498621300435022059, guid: dc05c3809b9889941bcff10d765fdf2b, type: 3}
-  m_PrefabInstance: {fileID: 2839764285711077040}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &5542027054860213359 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7746722063006192351, guid: dc05c3809b9889941bcff10d765fdf2b, type: 3}

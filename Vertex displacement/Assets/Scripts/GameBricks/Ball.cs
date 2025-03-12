@@ -7,8 +7,9 @@ public class Ball : MonoBehaviour
     public static string TAG = "Ball";
 
     private Vector3 _startPos = Vector3.zero;
-    private Rigidbody _rb;
-    private Collider _Collider;
+    public Rigidbody rb;
+    private Collider _collider;
+    public Renderer ballRenderer;
 
     private void Start()
     {
@@ -17,10 +18,12 @@ public class Ball : MonoBehaviour
 
     private void Init()
     {
-        _rb = GetComponent<Rigidbody>();
+        TryGetComponent(out rb);
+        TryGetComponent(out _collider);
+        TryGetComponent(out ballRenderer);
+
         _startPos = transform.position;
         InputReader.Instance.DebugResetBallAction.started += BindToReset;
-        _Collider = GetComponent<Collider>();
     }
 
     private void BindToReset(InputAction.CallbackContext pContext)
@@ -30,9 +33,9 @@ public class Ball : MonoBehaviour
 
     public void RestartBall()
     {
-        _rb.Move(_startPos, Quaternion.identity);
-        _rb.velocity = Vector3.zero;
-        _rb.angularVelocity = Vector3.zero;
-        _Collider.enabled = true;
+        rb.Move(_startPos, Quaternion.identity);
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        _collider.enabled = true;
     }
 }

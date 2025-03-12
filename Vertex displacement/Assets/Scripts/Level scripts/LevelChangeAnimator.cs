@@ -3,23 +3,37 @@ using UnityEngine;
 
 public class LevelChangeAnimator : MonoBehaviour
 {
-    [SerializeField, Min(10f)] public float levelChangeDistance;
+    [SerializeField, Min(10f)] private float _levelChangeDistance;
     [SerializeField, Min(0.1f)] public float levelChangeDuration;
 
     private LevelManager _levelManager;
+
+    private void OnValidate()
+    {
+        _levelChangeDistance = Mathf.Max(10f, _levelChangeDistance);
+        levelChangeDuration = Mathf.Max(0.1f, levelChangeDuration);
+    }
 
     private void Start()
     {
         _levelManager = GetComponent<LevelManager>();
     }
 
-    public void StartLevel(Level pCurrentLevel)
+    public void StartLevelWithoutTransition(Level pCurrentLevel, Vector2 pDir)
     {
         if (_levelBGChangeRoutine != null) StopCoroutine(_levelBGChangeRoutine);
+        if (_levelInChangeRoutine != null) StopCoroutine(_levelInChangeRoutine);
+
         StartCoroutine(_levelBGChangeRoutine = LevelBGChangeRoutine(Camera.main.backgroundColor, pCurrentLevel.bgColor, levelChangeDuration * 0.33f));
+        StartCoroutine(_levelInChangeRoutine = LevelInChangeRoutine(pCurrentLevel, pDir, _levelChangeDistance, levelChangeDuration));
     }
 
-    public void StartLevelSwitchAnimation(Level pCurrent, Level pNext, Vector3 pDir, float pDistance, float pDuration)
+    public void LevelTransition(Level pCurrent, Level pNext, Vector2 pDir)
+    {
+        StartLevelSwitchAnimation(pCurrent, pNext, pDir, _levelChangeDistance, levelChangeDuration);
+    }
+
+    public void StartLevelSwitchAnimation(Level pCurrent, Level pNext, Vector2 pDir, float pDistance, float pDuration)
     {
         if (_levelInChangeRoutine != null) StopCoroutine(_levelInChangeRoutine);
         if (_levelOutChangeRoutine != null) StopCoroutine(_levelOutChangeRoutine);
@@ -50,11 +64,11 @@ public class LevelChangeAnimator : MonoBehaviour
     }
 
     private IEnumerator _levelInChangeRoutine = null;
-    private IEnumerator LevelInChangeRoutine(Level pLevel, Vector3 pDirection, float pDistance, float pDuration)
+    private IEnumerator LevelInChangeRoutine(Level pLevel, Vector2 pDirection, float pDistance, float pDuration)
     {
         Vector3 lStartPos;
 
-        if (pLevel.levelRenderer.isVisible) lStartPos = pLevel.transform.position;
+        if (pLevel.GetComponent<Renderer>().isVisible) lStartPos = pLevel.transform.position;
         else lStartPos = pDirection.normalized * -1 * pDistance;
 
         Vector3 lEndPos = _levelManager.levelPlayingPos;
@@ -72,7 +86,7 @@ public class LevelChangeAnimator : MonoBehaviour
     }
 
     private IEnumerator _levelOutChangeRoutine = null;
-    private IEnumerator LevelOutChangeRoutine(Level pLevel, Vector3 pDirection, float pDistance, float pDuration)
+    private IEnumerator LevelOutChangeRoutine(Level pLevel, Vector2 pDirection, float pDistance, float pDuration)
     {
         Vector3 lStartPos = pLevel.transform.position;
         Vector3 lEndPos = pDirection.normalized * pDistance;
