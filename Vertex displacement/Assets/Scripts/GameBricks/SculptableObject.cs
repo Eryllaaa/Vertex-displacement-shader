@@ -202,6 +202,7 @@ public class SculptableObject : MonoBehaviour
         }
     }
 
+    private IEnumerator _slowColliderUpdate = null;
     private IEnumerator SlowColliderUpdate()
     {
         while (true)
@@ -221,18 +222,6 @@ public class SculptableObject : MonoBehaviour
     
         _mesh.RecalculateNormals();
         _mesh.RecalculateBounds();
-    }
-
-    private IEnumerator _slowColliderUpdate = null;
-    private IEnumerator SlowColliderUpdate()
-    {
-        const float FIXED_STEP = 0.05f;
-        while (true)
-        {
-            _physicsCollider.sharedMesh = null;
-            _physicsCollider.sharedMesh = _mesh;
-            yield return new WaitForSeconds(FIXED_STEP);
-        }
     }
 
     private void SendSculptHit(SculptHit lHit)
