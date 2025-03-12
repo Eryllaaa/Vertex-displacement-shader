@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -5,6 +6,10 @@ public class Level : MonoBehaviour
 {
     [SerializeField] private Transform _ballSpawnPos;
     [SerializeField] private Ball _ballTemplate;
+    [SerializeField] private Goal _goal;
+    [SerializeField] private float _delayOnLevelWin = 1f;
+
+    public event Action levelWin;
 
     private Ball _ball = null;
 
@@ -16,6 +21,7 @@ public class Level : MonoBehaviour
 
     private void Start()
     {
+        if (_goal != null) _goal.ballEnteredHole += () => StartCoroutine(OnBallEnteredHole(_delayOnLevelWin));
         SetDisabled();
     }
 
@@ -44,6 +50,7 @@ public class Level : MonoBehaviour
     private IEnumerator DelayedPlaying(float pDelay)
     {
         yield return new WaitForSeconds(pDelay);
+        SetSculptablesActive(true);
         _state = Playing;
         if (_ball == null)
         {
@@ -89,6 +96,7 @@ public class Level : MonoBehaviour
     public void SetDisabled()
     {
         _state = Disabled;
+        SetSculptablesActive(false);
         if (_ball != null) _ball.DestroyBallAnimation();
     }
 
@@ -100,11 +108,31 @@ public class Level : MonoBehaviour
         }
     }
 
+    private void SetSculptablesActive(bool pActive)
+    {
+        SculptableObject[] lSculptables = GetSculptables();
+        foreach (SculptableObject lSculptable in lSculptables)
+        {
+            lSculptable.SetSculptableActive(pActive);
+        }
+    }
+
     public Ball SpawnBall(Vector3 pPos)
     {
         Ball lBall = Instantiate(_ballTemplate, transform);
         lBall.transform.position = pPos;
         
         return lBall;
+    }
+
+    private IEnumerator OnBallEnteredHole(float pDelay = 0f)
+    {
+        yield return new WaitForSeconds(pDelay);
+        levelWin?.Invoke();
+    }
+
+    private SculptableObject[] GetSculptables()
+    {
+        return GetComponentsInChildren<SculptableObject>();
     }
 }

@@ -10,7 +10,6 @@ public class Goal : MonoBehaviour
         if (other.CompareTag(Ball.TAG))
         {
             ballEnteredHole?.Invoke();
-            //print("goal entered");
         }
     }
 }

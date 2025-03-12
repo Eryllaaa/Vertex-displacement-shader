@@ -45,14 +45,14 @@ public class LevelManager : MonoBehaviour
 
     public void StartNextLevel(Vector3 pDir)
     {
-        _currentLevelIndex = Mathf.Clamp(_currentLevelIndex + 1, 0, levels.Count - 1);
-        StartLevel(_currentLevelIndex, pDir);
+        if (_currentLevelIndex + 1 > levels.Count - 1) return;
+        StartLevel(++_currentLevelIndex, pDir);
     }
 
     public void StartPreviousLevel(Vector3 pDir)
     {
-        _currentLevelIndex = Mathf.Clamp(_currentLevelIndex - 1, 0, levels.Count - 1);
-        StartLevel(_currentLevelIndex, pDir);
+        if (_currentLevelIndex - 1 < 0) return;
+        StartLevel(--_currentLevelIndex, pDir);
     }
 
     public void StartLevelWithoutAnimation(Level pLevel, Vector2 pDir)
@@ -69,7 +69,8 @@ public class LevelManager : MonoBehaviour
 
     private void StartLevel(Level pNextLevel, Vector2 pDir)
     {
-        if (_currentLevel == null)
+        bool lCurrentLevelIsNull = _currentLevel == null;
+        if (lCurrentLevelIsNull)
         {
             _levelChangeAnimator.StartLevelWithoutTransition(pNextLevel, pDir);
         }
@@ -78,10 +79,20 @@ public class LevelManager : MonoBehaviour
             _levelChangeAnimator.LevelTransition(_currentLevel, pNextLevel, pDir);
         }
 
-        if (_currentLevel != null) _currentLevel.SetDisabled();
+        if (!lCurrentLevelIsNull)
+        {
+            _currentLevel.SetDisabled();
+            _currentLevel.levelWin -= OnLevelWin;
+        }
 
+        pNextLevel.levelWin += OnLevelWin;
         pNextLevel.gameObject.SetActive(true);
         pNextLevel.SetPlaying(_levelChangeAnimator.levelChangeDuration);
         _currentLevel = pNextLevel;
+    }
+
+    private void OnLevelWin()
+    {
+        print("--- level win ---");
     }
 }

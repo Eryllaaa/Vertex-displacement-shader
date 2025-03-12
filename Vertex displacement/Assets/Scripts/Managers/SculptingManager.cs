@@ -86,7 +86,7 @@ public class SculptingManager : MonoBehaviour
     {
         if (pHit.collider == null)
         {
-            print("no collider hit");
+            //print("no collider hit");
             return;
         }
         else if (pHit.transform.GetComponent<SculptableObject>() == null)
