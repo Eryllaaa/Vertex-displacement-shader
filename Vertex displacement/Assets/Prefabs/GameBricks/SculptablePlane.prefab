@@ -121,6 +121,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _maxDisplacement: 1
+  _meshUpdateInterval: 0.02
+  _colliderUpdateInterval: 0.02
   _computeShaderTemplate: {fileID: 7200000, guid: 785e195a1b58ae548b2c63452d3cb561, type: 3}
   _physicsCollider: {fileID: 1985165045360837871}
 --- !u!1 &3157343094803245587

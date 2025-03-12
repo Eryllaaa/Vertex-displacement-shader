@@ -528,6 +528,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8134419556154553462, guid: dc05c3809b9889941bcff10d765fdf2b, type: 3}
+      propertyPath: _meshUpdateInterval
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 8134419556154553462, guid: dc05c3809b9889941bcff10d765fdf2b, type: 3}
+      propertyPath: _colliderUpdateInterval
+      value: 0.02
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

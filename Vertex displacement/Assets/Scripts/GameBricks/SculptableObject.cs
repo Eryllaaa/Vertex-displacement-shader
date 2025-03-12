@@ -9,6 +9,9 @@ public class SculptableObject : MonoBehaviour
 {
     [SerializeField, Range(0.1f, 10f)] private float _maxDisplacement = 1f;
 
+    [SerializeField, Min(0f)] private float _meshUpdateInterval = 0.02f;
+    [SerializeField, Min(0f)] private float _colliderUpdateInterval = 0.02f;
+
     #region Materials and Shaders
     [SerializeField] private ComputeShader _computeShaderTemplate;
     [SerializeField] private MeshCollider _physicsCollider; // not the raycast collider but the collider used for physics with the ball that is a child of this game object.
@@ -72,7 +75,7 @@ public class SculptableObject : MonoBehaviour
     {
         StartComponents();
         StartComputeShader();
-        StartCoroutine(ColliderUpdate());
+        StartCoroutine(SlowColliderUpdate());
         StartCoroutine(SlowMeshUpdate());
         BindToReset();
     }
@@ -155,10 +158,9 @@ public class SculptableObject : MonoBehaviour
 
     private IEnumerator SlowMeshUpdate()
     {
-        const float FIXED_STEP = 0.02f;
         while (true)
         {
-            _computeShader.SetFloat(_DELTA_TIME, FIXED_STEP);
+            _computeShader.SetFloat(_DELTA_TIME, _meshUpdateInterval);
             _computeShader.SetVector(_PREVIOUS_SCULPT_POS, _previousHitPos);
 
             _computeShader.Dispatch(CSMainKernelId, _groupCount, 1, 1);
@@ -167,7 +169,17 @@ public class SculptableObject : MonoBehaviour
 
             ApplyDisplacementToMesh();
 
-            yield return new WaitForSeconds(FIXED_STEP);
+            yield return new WaitForSeconds(_meshUpdateInterval);
+        }
+    }
+
+    private IEnumerator SlowColliderUpdate()
+    {
+        while (true)
+        {
+            _physicsCollider.sharedMesh = null;
+            _physicsCollider.sharedMesh = _mesh;
+            yield return new WaitForSeconds(_colliderUpdateInterval);
         }
     }
 
@@ -181,18 +193,7 @@ public class SculptableObject : MonoBehaviour
         _mesh.RecalculateNormals();
         _mesh.RecalculateBounds();
     }
-
-    private IEnumerator ColliderUpdate()
-    {
-        const float FIXED_STEP = 0.05f;
-        while (true)
-        {
-            _physicsCollider.sharedMesh = null;
-            _physicsCollider.sharedMesh = _mesh;
-            yield return new WaitForSeconds(FIXED_STEP);
-        }
-    }
-
+    
     private void SendSculptHit(SculptHit lHit)
     {
         if (_computeShader == null) { print("NO COMPUTE SHADER INSTANCE"); return; }
