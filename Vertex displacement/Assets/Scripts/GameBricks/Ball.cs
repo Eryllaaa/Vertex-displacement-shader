@@ -77,10 +77,15 @@ public class Ball : MonoBehaviour
     private IEnumerator _freezeRoutine = null;
     private IEnumerator FreezeRoutine()
     {
-        rb.isKinematic = true;
+        float lTime = 0f;
 
-        yield return new WaitForSeconds(_hoverOnSpawnDuration);
-
-        rb.isKinematic = false;
+        while (lTime < _hoverOnSpawnDuration)
+        {
+            rb.Sleep();
+            //rb.velocity = Vector3.zero;
+            //rb.angularVelocity = Vector3.zero;
+            lTime += Time.deltaTime;
+            yield return 0;
+        }
     }
 }

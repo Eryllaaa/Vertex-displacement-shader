@@ -49,7 +49,7 @@ public class Level : MonoBehaviour
         {
             _ball = SpawnBall(_ballSpawnPos.position);
         }
-        else if (CheckBallRespawn())
+        else
         {
             _ball.RestartBall();
             _ball.transform.position = _ballSpawnPos.position;
@@ -89,6 +89,7 @@ public class Level : MonoBehaviour
     public void SetDisabled()
     {
         _state = Disabled;
+        if (_ball != null) _ball.DestroyBallAnimation();
     }
 
     private void Disabled()

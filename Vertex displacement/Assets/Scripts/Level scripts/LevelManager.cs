@@ -40,6 +40,7 @@ public class LevelManager : MonoBehaviour
         {
             StartPreviousLevel(Vector3.left);
         }
+        // -----------------------
     }
 
     public void StartNextLevel(Vector3 pDir)
@@ -77,8 +78,10 @@ public class LevelManager : MonoBehaviour
             _levelChangeAnimator.LevelTransition(_currentLevel, pNextLevel, pDir);
         }
 
+        if (_currentLevel != null) _currentLevel.SetDisabled();
+
+        pNextLevel.gameObject.SetActive(true);
+        pNextLevel.SetPlaying(_levelChangeAnimator.levelChangeDuration);
         _currentLevel = pNextLevel;
-        _currentLevel.gameObject.SetActive(true);
-        _currentLevel.SetPlaying(_levelChangeAnimator.levelChangeDuration);
     }
 }
