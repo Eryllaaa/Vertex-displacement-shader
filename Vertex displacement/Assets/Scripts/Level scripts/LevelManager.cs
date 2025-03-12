@@ -94,5 +94,6 @@ public class LevelManager : MonoBehaviour
     private void OnLevelWin()
     {
         print("--- level win ---");
+        StartNextLevel(Vector3.right);
     }
 }

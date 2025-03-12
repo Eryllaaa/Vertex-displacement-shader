@@ -81,7 +81,7 @@ public class SculptableObject : MonoBehaviour
         }
         else
         {
-            DeactivateSculptable();
+            DeactivateSculptable(false);
         }
     }
 
@@ -261,7 +261,11 @@ public class SculptableObject : MonoBehaviour
 
     public void OnHit(SculptHit pHit)
     {
-        if (!_sculptingEnabled) return;
+        if (!_sculptingEnabled)
+        {
+            print("sculptable is disabled, consider checking 'auto start'");
+            return;
+        }
 
         _currentHit = pHit;
         _previousHitPos = transform.InverseTransformPoint(_currentHit.previousPos);
@@ -274,23 +278,26 @@ public class SculptableObject : MonoBehaviour
         DeactivateSculptable(true);
     }
 
-    private void DeactivateSculptable(bool pOnDestroy = false)
+    private void DeactivateSculptable(bool pOnDestroy)
     {
         _sculptingEnabled = false;
 
-        if (!pOnDestroy) StartCoroutine(ReleaseBuffersAndShadersAndSlowUpdates());
-        else ReleaseBuffersAndShadersAndSlowUpdates();
+        if (!pOnDestroy) StartCoroutine(ReleaseBuffersAndShadersAndSlowUpdates(false));
+        else ReleaseBuffersAndShadersAndSlowUpdates(true);
 
         UnbindToReset();
     }
 
-    private IEnumerator ReleaseBuffersAndShadersAndSlowUpdates()
+    private IEnumerator ReleaseBuffersAndShadersAndSlowUpdates(bool pOnDestroy)
     {
-        ResetDisplacement();
-
-        yield return new WaitForSeconds(1.0f);
+        if (!pOnDestroy)
+        {
+            ResetDisplacement();
+            yield return new WaitForSeconds(1.0f);
+        }
 
         _computeShader = null;
+
         if (_displacementsBuffer != null) _displacementsBuffer.Release();
         if (_vertexBuffer != null) _vertexBuffer.Release();
         if (_startNormalsBuffer != null) _startNormalsBuffer.Release();

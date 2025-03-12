@@ -78,7 +78,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d0622f6021d3bc84caf05d0a171c3b40, type: 2}
+  - {fileID: 2100000, guid: bd6f720b8202f9a4294b685f164dadf7, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -121,6 +121,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _maxDisplacement: 1
+  _autoStart: 0
   _meshUpdateInterval: 0.02
   _colliderUpdateInterval: 0.02
   _computeShaderTemplate: {fileID: 7200000, guid: 785e195a1b58ae548b2c63452d3cb561, type: 3}

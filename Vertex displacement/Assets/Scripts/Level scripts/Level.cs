@@ -8,6 +8,7 @@ public class Level : MonoBehaviour
     [SerializeField] private Ball _ballTemplate;
     [SerializeField] private Goal _goal;
     [SerializeField] private float _delayOnLevelWin = 1f;
+    [SerializeField] private bool _autoStart = false;
 
     public event Action levelWin;
 
@@ -22,7 +23,8 @@ public class Level : MonoBehaviour
     private void Start()
     {
         if (_goal != null) _goal.ballEnteredHole += () => StartCoroutine(OnBallEnteredHole(_delayOnLevelWin));
-        SetDisabled();
+        if (_autoStart) SetPlaying();
+        else SetDisabled();
     }
 
     private void Update()
@@ -36,7 +38,7 @@ public class Level : MonoBehaviour
             if (_state == Playing) SetPaused();
             if (_state == Paused) SetPlaying();
         }
-        _state();
+        if (_state != null) _state();
     }
 
     #region Playing

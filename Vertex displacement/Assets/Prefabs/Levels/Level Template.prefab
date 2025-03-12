@@ -82,7 +82,7 @@ MonoBehaviour:
   _ballTemplate: {fileID: 6433874499919895513, guid: d9317720a8d531049af24777d969ce09, type: 3}
   _goal: {fileID: 2410332717010691380}
   _delayOnLevelWin: 1
-  bgColor: {r: 0.52021563, g: 0, b: 0, a: 1}
+  bgColor: {r: 0.5188679, g: 0.5188679, b: 0.5188679, a: 1}
 --- !u!1001 &1212666214914049842
 PrefabInstance:
   m_ObjectHideFlags: 0

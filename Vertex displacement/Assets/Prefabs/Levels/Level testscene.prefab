@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &5807140606087377923
+--- !u!1001 &4958811052978894792
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -8,21 +8,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 385577939038224796, guid: 7efc28f4881a4dc4bbf2d7ade03e8373, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 3191045304806279058, guid: 7efc28f4881a4dc4bbf2d7ade03e8373, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 3191045304806279058, guid: 7efc28f4881a4dc4bbf2d7ade03e8373, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 4
+      value: 3.5
       objectReference: {fileID: 0}
+    - target: {fileID: 3721366045125328475, guid: 7efc28f4881a4dc4bbf2d7ade03e8373, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: d0622f6021d3bc84caf05d0a171c3b40, type: 2}
     - target: {fileID: 4932686443892761181, guid: 7efc28f4881a4dc4bbf2d7ade03e8373, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 999.9741
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4932686443892761181, guid: 7efc28f4881a4dc4bbf2d7ade03e8373, type: 3}
       propertyPath: m_LocalPosition.y
@@ -61,23 +57,32 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6302537088713837584, guid: 7efc28f4881a4dc4bbf2d7ade03e8373, type: 3}
+      propertyPath: _goal
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6302537088713837584, guid: 7efc28f4881a4dc4bbf2d7ade03e8373, type: 3}
       propertyPath: bgColor.b
-      value: 0.6603774
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6302537088713837584, guid: 7efc28f4881a4dc4bbf2d7ade03e8373, type: 3}
       propertyPath: bgColor.g
-      value: 0.6603774
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6302537088713837584, guid: 7efc28f4881a4dc4bbf2d7ade03e8373, type: 3}
       propertyPath: bgColor.r
-      value: 0.6603774
+      value: 0.1792453
       objectReference: {fileID: 0}
+    - target: {fileID: 6302537088713837584, guid: 7efc28f4881a4dc4bbf2d7ade03e8373, type: 3}
+      propertyPath: _ballTemplate
+      value: 
+      objectReference: {fileID: 1392254033523287955, guid: cd42e28123404c84184c4d0d77d9dc57, type: 3}
     - target: {fileID: 6326298031814357589, guid: 7efc28f4881a4dc4bbf2d7ade03e8373, type: 3}
       propertyPath: m_Name
-      value: Level 1
+      value: Level testscene
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 6066757162907710071, guid: 7efc28f4881a4dc4bbf2d7ade03e8373, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7efc28f4881a4dc4bbf2d7ade03e8373, type: 3}
