@@ -78,6 +78,7 @@ public class LevelManager : MonoBehaviour
         }
 
         _currentLevel = pNextLevel;
+        _currentLevel.gameObject.SetActive(true);
         _currentLevel.SetPlaying(_levelChangeAnimator.levelChangeDuration);
     }
 }

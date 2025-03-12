@@ -5,7 +5,6 @@ public class Level : MonoBehaviour
 {
     [SerializeField] private Transform _ballSpawnPos;
     [SerializeField] private Ball _ballTemplate;
-    [SerializeField] public float _ballRespawnForce;
 
     private Ball _ball = null;
 
@@ -22,10 +21,20 @@ public class Level : MonoBehaviour
 
     private void Update()
     {
+        if (Camera.main.IsInCameraFrustum(gameObject.GetRendererBounds()))
+        {
+            //gameObject.SetActive(false);
+        }
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            if (_state == Playing) SetPaused();
+            if (_state == Paused) SetPlaying();
+        }
         _state();
     }
 
-    public void SetPlaying(float pDelay)
+    #region Playing
+    public void SetPlaying(float pDelay = 0f)
     {
         if (_delayedPlaying != null) StopCoroutine(_delayedPlaying);
         StartCoroutine(_delayedPlaying = DelayedPlaying(pDelay));
@@ -53,7 +62,6 @@ public class Level : MonoBehaviour
         {
             _ball.RestartBall();
             _ball.transform.position = _ballSpawnPos.position;
-            _ball.rb.AddForce(Vector3.down * _ballRespawnForce, ForceMode.Impulse);
         }
     }
 
@@ -65,10 +73,12 @@ public class Level : MonoBehaviour
         }
         return false;
     }
+    #endregion
 
     public void SetPaused()
     {
         _state = Paused;
+        if (_ball != null) _ball.rb.Sleep();
     }
 
     private void Paused()
@@ -83,7 +93,10 @@ public class Level : MonoBehaviour
 
     private void Disabled()
     {
-
+        if (Camera.main.IsInCameraFrustum(gameObject.GetRendererBounds()))
+        {
+            //gameObject.SetActive(false);
+        }
     }
 
     public Ball SpawnBall(Vector3 pPos)

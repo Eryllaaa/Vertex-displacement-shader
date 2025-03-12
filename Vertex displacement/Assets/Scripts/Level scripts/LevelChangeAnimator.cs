@@ -68,7 +68,7 @@ public class LevelChangeAnimator : MonoBehaviour
     {
         Vector3 lStartPos;
 
-        if (pLevel.GetComponent<Renderer>().isVisible) lStartPos = pLevel.transform.position;
+        if (Camera.main.IsInCameraFrustum(pLevel.gameObject.GetRendererBounds())) lStartPos = pLevel.transform.position;
         else lStartPos = pDirection.normalized * -1 * pDistance;
 
         Vector3 lEndPos = _levelManager.levelPlayingPos;
