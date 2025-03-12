@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 809521572684825348}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalPosition: {x: 0, y: 6, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -61,9 +61,9 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 385577939038224796}
   - {fileID: 5542027054860213359}
   - {fileID: 3191045304806279058}
-  - {fileID: 385577939038224796}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6302537088713837584
@@ -79,8 +79,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _ballSpawnPos: {fileID: 385577939038224796}
-  _ballTemplate: {fileID: 693988740440839993, guid: d9317720a8d531049af24777d969ce09, type: 3}
-  levelRenderer: {fileID: 3721366045125328475}
+  _ballTemplate: {fileID: 6433874499919895513, guid: d9317720a8d531049af24777d969ce09, type: 3}
+  _goal: {fileID: 2410332717010691380}
+  _delayOnLevelWin: 1
   bgColor: {r: 0.52021563, g: 0, b: 0, a: 1}
 --- !u!1001 &1212666214914049842
 PrefabInstance:
@@ -139,6 +140,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f072e8ea1ba33d248b280d5e16e01da7, type: 3}
+--- !u!114 &2410332717010691380 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3577962202989945350, guid: f072e8ea1ba33d248b280d5e16e01da7, type: 3}
+  m_PrefabInstance: {fileID: 1212666214914049842}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43aa8a7acc4771945877baf04789f812, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &3191045304806279058 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4367541331472007328, guid: f072e8ea1ba33d248b280d5e16e01da7, type: 3}
@@ -209,11 +221,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dc05c3809b9889941bcff10d765fdf2b, type: 3}
---- !u!23 &3721366045125328475 stripped
-MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 1498621300435022059, guid: dc05c3809b9889941bcff10d765fdf2b, type: 3}
-  m_PrefabInstance: {fileID: 2839764285711077040}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &5542027054860213359 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7746722063006192351, guid: dc05c3809b9889941bcff10d765fdf2b, type: 3}

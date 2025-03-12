@@ -553,10 +553,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Ball
       objectReference: {fileID: 0}
-    - target: {fileID: 693988740440839993, guid: d9317720a8d531049af24777d969ce09, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 8656399583808014058, guid: d9317720a8d531049af24777d969ce09, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.36367178
@@ -596,10 +592,6 @@ PrefabInstance:
     - target: {fileID: 8656399583808014058, guid: d9317720a8d531049af24777d969ce09, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8966611206564536181, guid: d9317720a8d531049af24777d969ce09, type: 3}
-      propertyPath: m_Interpolate
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

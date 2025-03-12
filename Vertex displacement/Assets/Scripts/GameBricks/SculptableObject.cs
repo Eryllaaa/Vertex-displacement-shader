@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,6 +7,9 @@ using UnityEngine.InputSystem;
 public class SculptableObject : MonoBehaviour
 {
     [SerializeField, Range(0.1f, 10f)] private float _maxDisplacement = 1f;
+    [SerializeField] private bool _autoStart = false;
+
+    private bool _sculptingEnabled = false;
 
     [SerializeField, Min(0f)] private float _meshUpdateInterval = 0.02f;
     [SerializeField, Min(0f)] private float _colliderUpdateInterval = 0.02f;
@@ -71,13 +73,39 @@ public class SculptableObject : MonoBehaviour
         }
     }
     
+    public void SetSculptableActive(bool pActivate)
+    {
+        if (pActivate)
+        {
+            ActivateSculptable();
+        }
+        else
+        {
+            DeactivateSculptable();
+        }
+    }
+
+    private void ActivateSculptable()
+    {
+        _sculptingEnabled = true;
+        StartComputeShader();
+
+        if (_slowMeshUpdate != null) StopCoroutine(_slowMeshUpdate);
+        StartCoroutine(_slowMeshUpdate = SlowMeshUpdate());
+
+        if (_slowColliderUpdate != null) StopCoroutine(_slowColliderUpdate);
+        StartCoroutine(_slowColliderUpdate = SlowColliderUpdate());
+
+        BindToReset();
+    }
+
     private void Start()
     {
         StartComponents();
-        StartComputeShader();
-        StartCoroutine(SlowColliderUpdate());
-        StartCoroutine(SlowMeshUpdate());
-        BindToReset();
+        if (_autoStart)
+        {
+            ActivateSculptable();
+        }
     }
 
     private void BindToReset()
@@ -156,6 +184,7 @@ public class SculptableObject : MonoBehaviour
     private SculptHit _currentHit = SculptHit.none;
     private Vector3 _previousHitPos = Vector3.zero;
 
+    private IEnumerator _slowMeshUpdate = null;
     private IEnumerator SlowMeshUpdate()
     {
         while (true)
@@ -193,7 +222,19 @@ public class SculptableObject : MonoBehaviour
         _mesh.RecalculateNormals();
         _mesh.RecalculateBounds();
     }
-    
+
+    private IEnumerator _slowColliderUpdate = null;
+    private IEnumerator SlowColliderUpdate()
+    {
+        const float FIXED_STEP = 0.05f;
+        while (true)
+        {
+            _physicsCollider.sharedMesh = null;
+            _physicsCollider.sharedMesh = _mesh;
+            yield return new WaitForSeconds(FIXED_STEP);
+        }
+    }
+
     private void SendSculptHit(SculptHit lHit)
     {
         if (_computeShader == null) { print("NO COMPUTE SHADER INSTANCE"); return; }
@@ -220,7 +261,7 @@ public class SculptableObject : MonoBehaviour
         {
             lDefaultDisplacement[i] = 0f;
         }
-        _targetDisplacementsBuffer.SetData(lDefaultDisplacement);
+        if (_targetDisplacementsBuffer != null) _targetDisplacementsBuffer.SetData(lDefaultDisplacement);
     }
 
     public void SetMaxDisplacement(float pValue)
@@ -231,6 +272,8 @@ public class SculptableObject : MonoBehaviour
 
     public void OnHit(SculptHit pHit)
     {
+        if (!_sculptingEnabled) return;
+
         _currentHit = pHit;
         _previousHitPos = transform.InverseTransformPoint(_currentHit.previousPos);
         SendSculptHit(_currentHit);
@@ -239,13 +282,34 @@ public class SculptableObject : MonoBehaviour
     #region Destroy
     private void OnDestroy()
     {
-        _computeShader = null;
-        _displacementsBuffer.Release();
-        _vertexBuffer.Release();
-        _startNormalsBuffer.Release();
-        _verticesStartPosBuffer.Release();
-        _targetDisplacementsBuffer.Release();
+        DeactivateSculptable(true);
+    }
+
+    private void DeactivateSculptable(bool pOnDestroy = false)
+    {
+        _sculptingEnabled = false;
+
+        if (!pOnDestroy) StartCoroutine(ReleaseBuffersAndShadersAndSlowUpdates());
+        else ReleaseBuffersAndShadersAndSlowUpdates();
+
         UnbindToReset();
+    }
+
+    private IEnumerator ReleaseBuffersAndShadersAndSlowUpdates()
+    {
+        ResetDisplacement();
+
+        yield return new WaitForSeconds(1.0f);
+
+        _computeShader = null;
+        if (_displacementsBuffer != null) _displacementsBuffer.Release();
+        if (_vertexBuffer != null) _vertexBuffer.Release();
+        if (_startNormalsBuffer != null) _startNormalsBuffer.Release();
+        if (_verticesStartPosBuffer != null) _verticesStartPosBuffer.Release();
+        if (_targetDisplacementsBuffer != null) _targetDisplacementsBuffer.Release();
+
+        if (_slowMeshUpdate != null) StopCoroutine(_slowMeshUpdate);
+        if (_slowColliderUpdate != null) StopCoroutine(_slowColliderUpdate);
     }
 
     private void UnbindToReset()

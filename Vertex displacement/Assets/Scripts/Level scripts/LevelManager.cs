@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,19 +5,19 @@ public class LevelManager : MonoBehaviour
 {
     [SerializeField] private List<Level> levels = new List<Level>();
 
-    [SerializeField] private float _levelChangeDistance;
-    [SerializeField] private float _levelChangeDuration;
+    private LevelChangeAnimator _levelChangeAnimator;
 
+    [HideInInspector] public Vector3 levelPlayingPos = Vector3.zero;
+    private Vector3 _levelInitPos = new Vector3(10000, 0, 0);
     private int _currentLevelIndex = 0;
 
-    private Vector3 _levelPlayingPos = Vector3.zero;
-    private Vector3 _levelInitPos = new Vector3(10000, 0, 0);
     private Level _currentLevel = null;
 
     private void Start()
     {
+        _levelChangeAnimator = GetComponent<LevelChangeAnimator>();
         InitLevels();
-        StartLevel(levels[_currentLevelIndex]);
+        StartLevel(levels[_currentLevelIndex], Vector2.right);
     }
 
     private void InitLevels()
@@ -41,115 +40,59 @@ public class LevelManager : MonoBehaviour
         {
             StartPreviousLevel(Vector3.left);
         }
+        // -----------------------
     }
+
     public void StartNextLevel(Vector3 pDir)
     {
-        _currentLevelIndex = Mathf.Clamp(_currentLevelIndex + 1, 0, levels.Count - 1);
-        StartLevel(_currentLevelIndex % levels.Count, pDir, _levelChangeDistance, _levelChangeDuration);
+        if (_currentLevelIndex + 1 > levels.Count - 1) return;
+        StartLevel(++_currentLevelIndex, pDir);
     }
 
     public void StartPreviousLevel(Vector3 pDir)
     {
-        _currentLevelIndex = Mathf.Clamp(_currentLevelIndex - 1, 0, levels.Count - 1);
-        StartLevel(_currentLevelIndex, pDir, _levelChangeDistance, _levelChangeDuration);
+        if (_currentLevelIndex - 1 < 0) return;
+        StartLevel(--_currentLevelIndex, pDir);
     }
 
-    public void StartLevel(Level pLevel)
+    public void StartLevelWithoutAnimation(Level pLevel, Vector2 pDir)
     {
-        pLevel.transform.position = _levelPlayingPos;
+        pLevel.transform.position = levelPlayingPos;
         _currentLevel = pLevel;
-        if (_levelBGChangeRoutine != null) StopCoroutine(_levelBGChangeRoutine);
-        StartCoroutine(_levelBGChangeRoutine = LevelBGChangeRoutine(Camera.main.backgroundColor, _currentLevel.bgColor, _levelChangeDuration * 0.233f));
+        _levelChangeAnimator.StartLevelWithoutTransition(pLevel, pDir);
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="pLevelIndex"></param>
-    /// <param name="pDir">The direction in which the transition is going to happen, meaning the current level will go in the opposite direction while the selected level will go in that direction to travel to the center of the screen.</param>
-    /// <param name="pDistance"></param>
-    public void StartLevel(int pLevelIndex, Vector3 pDir, float pDistance, float pDuration)
+    public void StartLevel(int pLevelIndex, Vector2 pDir)
     {
-        StartLevel(levels[pLevelIndex], pDir, pDistance, pDuration);
+        StartLevel(levels[pLevelIndex], pDir);
     }
 
-    private void StartLevel(Level pLevel, Vector3 pDir, float pDistance, float pDuration)
+    private void StartLevel(Level pNextLevel, Vector2 pDir)
     {
-        //pLevel.transform.position = _levelPlayingPos;
-        
-        if (_currentLevel != null && _currentLevel != pLevel)
+        bool lCurrentLevelIsNull = _currentLevel == null;
+        if (lCurrentLevelIsNull)
         {
-            StartLevelSwitchAnimation(_currentLevel, pLevel, pDir, pDistance, pDuration);
+            _levelChangeAnimator.StartLevelWithoutTransition(pNextLevel, pDir);
+        }
+        else if (_currentLevel != pNextLevel)
+        {
+            _levelChangeAnimator.LevelTransition(_currentLevel, pNextLevel, pDir);
         }
 
-        _currentLevel = pLevel;
-    }
-
-    private void StartLevelSwitchAnimation(Level pCurrent, Level pNext, Vector3 pDir, float pDistance, float pDuration)
-    {
-        if (_levelInChangeRoutine != null) StopCoroutine(_levelInChangeRoutine);
-        if (_levelOutChangeRoutine != null) StopCoroutine(_levelOutChangeRoutine);
-        if (_levelBGChangeRoutine != null) StopCoroutine(_levelBGChangeRoutine);
-
-        StartCoroutine(_levelInChangeRoutine = LevelInChangeRoutine(pNext, pDir, pDuration));
-        StartCoroutine(_levelOutChangeRoutine = LevelOutChangeRoutine(pCurrent, pDir, pDistance, pDuration));
-        StartCoroutine(_levelBGChangeRoutine = LevelBGChangeRoutine(pCurrent.bgColor, pNext.bgColor, pDuration));
-    }
-
-    private IEnumerator _levelBGChangeRoutine = null;
-    private IEnumerator LevelBGChangeRoutine(Color pCurrent, Color pNext, float pDuration)
-    {
-        Camera lCamera = Camera.main;
-
-        float lDuration = pDuration;
-        float lTime = 0f;
-
-        while (lTime <= pDuration)
+        if (!lCurrentLevelIsNull)
         {
-            lCamera.backgroundColor = Color.Lerp(pCurrent, pNext, Curves.EaseInOutSine(lTime / lDuration));
-
-            lTime += Time.deltaTime;
-            yield return 0;
+            _currentLevel.SetDisabled();
+            _currentLevel.levelWin -= OnLevelWin;
         }
+
+        pNextLevel.levelWin += OnLevelWin;
+        pNextLevel.gameObject.SetActive(true);
+        pNextLevel.SetPlaying(_levelChangeAnimator.levelChangeDuration);
+        _currentLevel = pNextLevel;
     }
 
-    private IEnumerator _levelInChangeRoutine = null;
-    private IEnumerator LevelInChangeRoutine(Level pLevel, Vector3 pDirection, float pDuration)
+    private void OnLevelWin()
     {
-        Vector3 lStartPos;
-
-        if (pLevel.levelRenderer.isVisible) lStartPos = pLevel.transform.position;
-        else lStartPos = pDirection.normalized * -1 * 100;
-        
-        Vector3 lEndPos = _levelPlayingPos;
-
-        float lDuration = pDuration;
-        float lTime = 0f;
-
-        while (lTime <= lDuration)
-        {
-            pLevel.transform.position = Vector3.Lerp(lStartPos, lEndPos, Curves.EaseInOutSine(lTime / lDuration));
-
-            lTime += Time.deltaTime;
-            yield return 0;
-        }
-    }
-
-    private IEnumerator _levelOutChangeRoutine = null;
-    private IEnumerator LevelOutChangeRoutine(Level pLevel, Vector3 pDirection, float pDistance, float pDuration)
-    {
-        Vector3 lStartPos = pLevel.transform.position;
-        Vector3 lEndPos = pDirection.normalized * pDistance;
-
-        float lDuration = pDuration;
-        float lTime = 0f;
-
-        while (lTime <= lDuration)
-        {
-            pLevel.transform.position = Vector3.Lerp(lStartPos, lEndPos, Curves.EaseInOutSine(lTime / lDuration));
-
-            lTime += Time.deltaTime;
-            yield return 0;
-        }
+        print("--- level win ---");
     }
 }
