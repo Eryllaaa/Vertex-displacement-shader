@@ -23,17 +23,20 @@ public class SculptingManager : MonoBehaviour
     private LayerMask _SculptableLayer;
 
     [Header("Sculpting")]
-    [SerializeField, Range(5f, 20f)] private float _sculptSpeed = 1f;
+    [SerializeField] private float _sculptSpeed = 1f;
+    [SerializeField] private float _sculptRadius = 0.5f;
 
     [SerializeField] private float _minSculptRadius = 0.1f;
     [SerializeField] private float _maxSculptRadius = 10f;
+
+    [SerializeField] private float _minSculptSpeed = 5f;
+    [SerializeField] private float _maxSculptSpeed = 20f;
 
     [Header("Controls")]
     [SerializeField, Range(0.1f, 1f)] private float _mouseWheelSensitivity = 0.1f;
     #endregion
 
     InputReader _inputReader;
-    private float _sculptRadius = 0.2f;
 
     private Camera _camera;
     private const float _MAX_RAYCAST_DISTANCE = 1000f;
@@ -66,7 +69,7 @@ public class SculptingManager : MonoBehaviour
 
     private void BindInputs()
     {
-        _inputReader.strengthVariableAction.performed += BindScroll;
+        _inputReader.scrollAction.performed += BindScroll;
     }
 
     private void Update()
@@ -77,7 +80,6 @@ public class SculptingManager : MonoBehaviour
     private RaycastHit RaycastToWorld()
     {
         RaycastHit lHit;
-        //Physics.SphereCastAll(_camera.ScreenPointToRay(Input.mousePosition), _sculptRadius, _MAX_RAYCAST_DISTANCE, sculptableLayer);
         Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out lHit, _MAX_RAYCAST_DISTANCE, _SculptableLayer);
         return lHit;
     }
@@ -128,7 +130,16 @@ public class SculptingManager : MonoBehaviour
 
     private void BindScroll(InputAction.CallbackContext pContext)
     {
-        _sculptRadius -= pContext.ReadValue<Vector2>().y * _mouseWheelSensitivity * Time.deltaTime;
-        _sculptRadius = Mathf.Clamp(_sculptRadius, _minSculptRadius, _maxSculptRadius);
+        if (_inputReader.isModifier)
+        {
+            _sculptSpeed -= pContext.ReadValue<Vector2>().y * _mouseWheelSensitivity * Time.deltaTime;
+            _sculptSpeed = Mathf.Clamp(_sculptSpeed, _minSculptSpeed, _maxSculptSpeed);
+        }
+        // if not modifier, change the radius
+        else
+        {
+            _sculptRadius -= pContext.ReadValue<Vector2>().y * _mouseWheelSensitivity * Time.deltaTime;
+            _sculptRadius = Mathf.Clamp(_sculptRadius, _minSculptRadius, _maxSculptRadius);
+        }
     }
 }

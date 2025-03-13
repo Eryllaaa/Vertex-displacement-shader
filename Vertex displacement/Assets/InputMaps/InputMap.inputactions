@@ -15,7 +15,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "StrenghtVariable",
+                    "name": "Scroll",
                     "type": "Value",
                     "id": "23826ded-a6c4-492b-a6a4-43811ec6dcc7",
                     "expectedControlType": "Delta",
@@ -33,7 +33,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "StrenghtModifier",
+                    "name": "Modifier",
                     "type": "Button",
                     "id": "b6077ddc-ac89-42c7-bc25-5a8cf572d71b",
                     "expectedControlType": "Button",
@@ -99,7 +99,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "StrenghtModifier",
+                    "action": "Modifier",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -121,7 +121,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "StrenghtVariable",
+                    "action": "Scroll",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

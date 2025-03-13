@@ -10,8 +10,8 @@ public class InputReader : MonoBehaviour
     private const string SCULPT_UP = "SculptUp";
     private const string SCULPT_DOWN = "SculptDown";
     private const string RESET_LEVEL = "ResetLevel";
-    private const string STRENGTH_VARIABLE = "StrenghtVariable";
-    private const string STRENGTH_MODIFIER = "StrenghtModifier";
+    private const string MODIFIER = "Modifier";
+    private const string SCROLL_ACTION = "Scroll";
     //Debug
     private const string DEBUG_RESET_BALL = "DebugResetBall";
     private const string DEBUG_RESET_TERRAIN = "DebugResetTerrain";
@@ -19,8 +19,9 @@ public class InputReader : MonoBehaviour
     [HideInInspector] public InputAction sculptUpAction;
     [HideInInspector] public InputAction sculptDownAction;
     [HideInInspector] public InputAction resetLevelAction;
-    [HideInInspector] public InputAction strengthVariableAction;
-    [HideInInspector] public InputAction strengthModifierAction;
+    //Modifier
+    [HideInInspector] public InputAction modifierAction;
+    [HideInInspector] public InputAction scrollAction;
     //Debug
     [HideInInspector] public InputAction DebugResetBallAction;
     [HideInInspector] public InputAction DebugResetTerrainAction;
@@ -47,8 +48,10 @@ public class InputReader : MonoBehaviour
         sculptUpAction = _InputActions.FindAction(SCULPT_UP);
         sculptDownAction = _InputActions.FindAction(SCULPT_DOWN);
         resetLevelAction = _InputActions.FindAction(RESET_LEVEL);
-        strengthVariableAction = _InputActions.FindAction(STRENGTH_VARIABLE);
-        strengthModifierAction = _InputActions.FindAction(STRENGTH_MODIFIER);
+
+        modifierAction = _InputActions.FindAction(MODIFIER);
+        scrollAction = _InputActions.FindAction(SCROLL_ACTION);
+
         DebugResetBallAction = _InputActions.FindAction(DEBUG_RESET_BALL);
         DebugResetTerrainAction = _InputActions.FindAction(DEBUG_RESET_TERRAIN);
 
@@ -66,12 +69,14 @@ public class InputReader : MonoBehaviour
         resetLevelAction.performed += context => isResettingLevel = true;
         resetLevelAction.canceled += context => isResettingLevel = false;
 
-        strengthVariableAction.performed += context => scrollDelta = context.ReadValue<Vector2>().y;
-        strengthVariableAction.canceled += context => scrollDelta = 0;
+        //Modifier
+        modifierAction.performed += context => isModifier = true;
+        modifierAction.canceled += context => isModifier = false;
 
-        strengthModifierAction.performed += context => isModifier = true;
-        strengthModifierAction.canceled += context => isModifier = false;
+        scrollAction.performed += context => scrollDelta = context.ReadValue<Vector2>().y;
+        scrollAction.canceled += context => scrollDelta = 0;
 
+        //Debug
         DebugResetBallAction.performed += context => isResettingBall = true;
         DebugResetBallAction.canceled += context => isResettingBall = false;
 
@@ -84,8 +89,8 @@ public class InputReader : MonoBehaviour
         sculptUpAction.Enable();
         sculptDownAction.Enable();
         resetLevelAction.Enable();
-        strengthVariableAction.Enable();
-        strengthModifierAction.Enable();
+        modifierAction.Enable();
+        scrollAction.Enable();
 
         DebugResetBallAction.Enable();
         DebugResetTerrainAction.Enable();
@@ -96,8 +101,8 @@ public class InputReader : MonoBehaviour
         sculptUpAction.Disable();
         sculptDownAction.Disable();
         resetLevelAction.Disable();
-        strengthVariableAction.Disable();
-        strengthModifierAction.Disable();
+        modifierAction.Disable();
+        scrollAction.Disable();
 
         DebugResetBallAction.Disable();
         DebugResetTerrainAction.Disable();
