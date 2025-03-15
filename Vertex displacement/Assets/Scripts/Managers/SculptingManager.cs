@@ -36,6 +36,13 @@ public class SculptingManager : MonoBehaviour
     [SerializeField, Range(0.1f, 1f)] private float _mouseWheelSensitivity = 0.1f;
     #endregion
 
+    public float SculptSpeed { get { return _sculptSpeed; } private set { } }
+    public float MaxSculptSpeed { get { return _maxSculptSpeed; } private set { } }
+    public float MinSculptSpeed { get { return _minSculptSpeed; } private set { } }
+    public float SculptRadius { get { return _sculptRadius; } private set { } }
+    public float MinSculptRadius { get { return _minSculptRadius; } private set { } }
+    public float MaxSculptRadius { get { return _maxSculptRadius; } private set { } }
+
     InputReader _inputReader;
 
     private Camera _camera;
@@ -44,10 +51,16 @@ public class SculptingManager : MonoBehaviour
     private SculptHit _latestHit = SculptHit.none;
     private bool _interpolate = false;
 
-    private void Start()
+    public Vector3? latestHitPos = null;
+    private RaycastHit _raycastHit = default;
+
+    private void Awake()
     {
         SingletonCheck();
-        
+    }
+
+    private void Start()
+    {        
         InputCheck();
         BindInputs();
         MergeLayers();
@@ -74,6 +87,9 @@ public class SculptingManager : MonoBehaviour
 
     private void Update()
     {
+        _raycastHit = RaycastToWorld();
+        if (_raycastHit.collider != null) latestHitPos = _raycastHit.point;
+        else latestHitPos = null;
         InputsHandling();
     }
 
@@ -117,28 +133,31 @@ public class SculptingManager : MonoBehaviour
     {
         if (_inputReader.isScultpingUp)
         {
-            DetectionHandling(RaycastToWorld(),SculptDirection.up);
+            DetectionHandling(_raycastHit, SculptDirection.up);
             _interpolate = true;
         }
-        else if(_inputReader.isScultpingDown)
+        else if (_inputReader.isScultpingDown)
         {
-            DetectionHandling(RaycastToWorld(), SculptDirection.down);
+            DetectionHandling(_raycastHit, SculptDirection.down);
             _interpolate = true;
         }
-        else _interpolate = false;
+        else
+        {
+            _interpolate = false;
+        }
     }
 
     private void BindScroll(InputAction.CallbackContext pContext)
     {
         if (_inputReader.isModifier)
         {
-            _sculptSpeed -= pContext.ReadValue<Vector2>().y * _mouseWheelSensitivity * Time.deltaTime;
+            _sculptSpeed -= pContext.ReadValue<Vector2>().y * (_sculptSpeed * _mouseWheelSensitivity) * Time.deltaTime;
             _sculptSpeed = Mathf.Clamp(_sculptSpeed, _minSculptSpeed, _maxSculptSpeed);
         }
         // if not modifier, change the radius
         else
         {
-            _sculptRadius -= pContext.ReadValue<Vector2>().y * _mouseWheelSensitivity * Time.deltaTime;
+            _sculptRadius -= pContext.ReadValue<Vector2>().y * (_sculptRadius * _mouseWheelSensitivity) * Time.deltaTime;
             _sculptRadius = Mathf.Clamp(_sculptRadius, _minSculptRadius, _maxSculptRadius);
         }
     }

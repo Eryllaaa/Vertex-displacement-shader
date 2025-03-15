@@ -50,6 +50,9 @@ MonoBehaviour:
   - serializedVersion: 2
     m_Bits: 64
   _sculptSpeed: 10
+  _sculptRadius: 0.5
   _minSculptRadius: 1.5
   _maxSculptRadius: 5
+  _minSculptSpeed: 0.5
+  _maxSculptSpeed: 20
   _mouseWheelSensitivity: 1
