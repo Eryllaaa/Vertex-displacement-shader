@@ -48,6 +48,8 @@ MonoBehaviour:
   levels:
   - {fileID: 567461842840385555, guid: 3cd18cc14f42fa24f9000d6cb51203ff, type: 3}
   - {fileID: 5154515958768316707, guid: 33cdeeec4c6903b41986fddcf143a1d0, type: 3}
+  - {fileID: 4589086428965345347, guid: a8d420afd7d4a7a4f8d73407a5931c00, type: 3}
+  - {fileID: 2317671967878439740, guid: 8de18f952ccdfae4c969d2d8b2ee7925, type: 3}
   levelPlayingPos: {x: 0, y: 0, z: 0}
 --- !u!114 &2334862091478965260
 MonoBehaviour:
@@ -62,4 +64,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _levelChangeDistance: 30
-  _levelChangeDuration: 2
+  levelChangeDuration: 2
