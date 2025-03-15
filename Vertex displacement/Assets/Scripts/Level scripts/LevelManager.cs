@@ -24,9 +24,15 @@ public class LevelManager : MonoBehaviour
     {
         for (int i = 0; i < levels.Count; i++)
         {
-            levels[i] = Instantiate(levels[i]);
-            levels[i].transform.position = _levelInitPos;
+            levels[i] = SpawnLevel(levels[i], _levelInitPos);
         }
+    }
+
+    private Level SpawnLevel(Level pLevel, Vector3 pPos)
+    {
+        Level lLevel = Instantiate(pLevel);
+        lLevel.transform.position = pPos;
+        return lLevel;
     }
 
     private void Update()

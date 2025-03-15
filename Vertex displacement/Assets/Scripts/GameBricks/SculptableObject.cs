@@ -282,19 +282,34 @@ public class SculptableObject : MonoBehaviour
     {
         _sculptingEnabled = false;
 
-        if (!pOnDestroy) StartCoroutine(ReleaseBuffersAndShadersAndSlowUpdates(false));
-        else ReleaseBuffersAndShadersAndSlowUpdates(true);
+        if (pOnDestroy)
+        {
+            _computeShader = null;
 
+            if (_displacementsBuffer != null) _displacementsBuffer.Release();
+            if (_vertexBuffer != null) _vertexBuffer.Release();
+            if (_startNormalsBuffer != null) _startNormalsBuffer.Release();
+            if (_verticesStartPosBuffer != null) _verticesStartPosBuffer.Release();
+            if (_targetDisplacementsBuffer != null) _targetDisplacementsBuffer.Release();
+
+            if (_slowMeshUpdate != null) StopCoroutine(_slowMeshUpdate);
+            if (_slowColliderUpdate != null) StopCoroutine(_slowColliderUpdate);
+        }
+        else
+        {
+            if (_releaseMemoryRoutine != null) StopCoroutine(_releaseMemoryRoutine);
+            StartCoroutine(_releaseMemoryRoutine = ReleaseMemory());
+        }
+        
         UnbindToReset();
     }
 
-    private IEnumerator ReleaseBuffersAndShadersAndSlowUpdates(bool pOnDestroy)
+    private IEnumerator _releaseMemoryRoutine = null;
+    private IEnumerator ReleaseMemory()
     {
-        if (!pOnDestroy)
-        {
-            ResetDisplacement();
-            yield return new WaitForSeconds(1.0f);
-        }
+        ResetDisplacement();
+
+        yield return new WaitForSeconds(1.0f);
 
         _computeShader = null;
 
