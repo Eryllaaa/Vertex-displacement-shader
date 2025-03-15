@@ -20,14 +20,14 @@ int currentDir = 0;
 float currentRadius = 0;
 float deltaTime = 0;
 
-float easeOutCubic(float x)
+float easeOut1Point5(float x)
 {
-    return 1 - pow(1 - x, 1.5);
+    return 1 - pow(abs(1 - x), 1.5);
 }
 
 float GetTargetDisplacementRatio(float distance, float radius)
 {
-    return easeOutCubic(smoothstep(radius, 0, distance));
+    return easeOut1Point5(smoothstep(radius, 0, distance));
 }
 
 float3 ProjectOnSegment(float3 A, float3 B, float3 position)
